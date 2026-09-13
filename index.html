@@ -14,42 +14,35 @@
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
+            margin: 0;
+            padding: 0;
         }
         body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            background-size: 400% 400%;
-            animation: gradientBG 12s ease infinite;
+            background: linear-gradient(135deg, #09090e, #1a153b, #120b24);
             color: #ffffff;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 6px 10px;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            height: 100vh;
+            padding: 8px 12px;
             overflow: hidden;
-        }
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
         }
 
         .header {
             width: 100%;
             max-width: 400px;
-            background: rgba(30, 41, 59, 0.8);
-            backdrop-filter: blur(12px);
+            background: rgba(30, 41, 59, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            padding: 6px 10px;
+            padding: 6px 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-            z-index: 10;
+            flex-shrink: 0;
         }
         .user-info {
             text-align: left;
@@ -63,17 +56,17 @@
             font-size: 0.6rem;
             color: #c084fc;
         }
+
         .score-board {
-            margin: 2px 0;
-            z-index: 10;
+            flex-shrink: 0;
+            margin: 4px 0;
         }
         #score {
-            font-size: 1.9rem;
+            font-size: 2.2rem;
             font-weight: 900;
             background: linear-gradient(135deg, #38bdf8, #c084fc, #f472b6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 15px rgba(244, 114, 182, 0.4);
             line-height: 1.1;
         }
         .score-label {
@@ -83,125 +76,180 @@
             letter-spacing: 2px;
         }
 
-        .character-container {
+        /* Área Central do Jogo com Botões Flutuantes à Direita */
+        .game-area {
             position: relative;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: auto 0;
+            flex-grow: 1;
             width: 100%;
-            height: 28vh;
+            max-width: 400px;
+            margin: 4px 0;
+        }
+
+        .character-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
             cursor: pointer;
         }
         
         .waifu-img {
-            max-height: 100%;
-            max-width: 75vw;
+            max-height: 38vh;
+            max-width: 65vw;
+            height: auto;
             object-fit: contain;
             filter: drop-shadow(0 10px 25px rgba(192, 132, 252, 0.6));
-            transition: transform 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 5;
+            transition: transform 0.06s ease;
             border-radius: 16px;
         }
         .waifu-img:active {
             transform: scale(0.92);
         }
 
+        /* Botões Flutuantes Verticais à Direita */
+        .floating-buttons {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 20;
+        }
+
+        .float-btn {
+            background: rgba(30, 41, 59, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.2s, background 0.2s;
+        }
+        .float-btn:active {
+            transform: scale(0.9);
+        }
+        .float-btn span {
+            font-size: 1.1rem;
+        }
+
+        /* Modais / Painéis Deslizantes */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            width: 85%;
+            max-width: 340px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: left;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+        }
+        .modal-header h3 {
+            font-size: 0.9rem;
+            color: #38bdf8;
+        }
+        .close-modal {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .upgrade-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upgrade-item div h4 {
+            font-size: 0.75rem;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .upgrade-item div p {
+            font-size: 0.6rem;
+            color: #94a3b8;
+        }
+        .upgrade-item button {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .music-player-bar {
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            padding: 4px 8px;
+            padding: 6px 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
             max-width: 400px;
             font-size: 0.65rem;
-            margin-bottom: 4px;
-            z-index: 10;
+            flex-shrink: 0;
         }
-        .music-btn {
-            background: #3b82f6;
-            border: none;
-            color: white;
-            padding: 3px 6px;
-            border-radius: 4px;
+        .music-status {
+            color: #34d399;
             font-weight: bold;
-            cursor: pointer;
-            font-size: 0.65rem;
-        }
-
-        .content-panel {
-            width: 100%;
-            max-width: 400px;
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 4px;
-            max-height: 35vh;
-            overflow-y: auto;
-            z-index: 10;
-        }
-        .content-panel.active {
-            display: flex;
-        }
-        
-        .upgrades-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px;
-            width: 100%;
-        }
-        .upgrade-card {
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 6px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .upgrade-card h4 {
-            margin: 0 0 3px 0;
-            font-size: 0.65rem;
-            color: #cbd5e1;
-        }
-        .upgrade-card button {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            border: none;
-            color: white;
-            padding: 5px;
-            border-radius: 5px;
-            font-size: 0.65rem;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
-        }
-        .upgrade-card.ad-card {
-            border-color: rgba(16, 185, 129, 0.4);
-            background: rgba(6, 95, 70, 0.35);
-        }
-        .upgrade-card.ad-card button {
-            background: linear-gradient(135deg, #059669, #047857);
-            box-shadow: 0 3px 8px rgba(5, 150, 105, 0.3);
         }
 
         .footer-section {
             width: 100%;
             max-width: 400px;
-            margin-bottom: 4px;
-            z-index: 10;
+            flex-shrink: 0;
+            margin: 4px 0;
         }
         .energy-info {
             display: flex;
             justify-content: space-between;
             font-size: 0.65rem;
             color: #94a3b8;
-            margin-bottom: 2px;
+            margin-bottom: 3px;
             font-weight: 600;
         }
         .energy-bar {
@@ -210,50 +258,13 @@
             border-radius: 8px;
             overflow: hidden;
             height: 10px;
-            border: 1.5px solid rgba(51, 65, 85, 0.8);
+            border: 1px solid rgba(51, 65, 85, 0.8);
         }
         #energy-fill {
             background: linear-gradient(90deg, #10b981, #34d399);
             height: 100%;
             width: 100%;
-            transition: width 0.2s linear;
-            border-radius: 5px;
-        }
-
-        .nav-bar {
-            width: 100%;
-            max-width: 400px;
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            display: flex;
-            justify-content: space-around;
-            padding: 4px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
-            z-index: 10;
-        }
-        .nav-item {
-            background: transparent;
-            border: none;
-            color: #94a3b8;
-            font-size: 0.6rem;
-            font-weight: 600;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1px;
-            cursor: pointer;
-            padding: 3px 8px;
-            border-radius: 6px;
-            transition: all 0.2s;
-        }
-        .nav-item span {
-            font-size: 1rem;
-        }
-        .nav-item.active {
-            color: #38bdf8;
-            background: rgba(56, 189, 248, 0.15);
+            transition: width 0.1s linear;
         }
 
         .floating-text {
@@ -262,19 +273,13 @@
             color: #f472b6;
             font-size: 1.6rem;
             pointer-events: none;
-            animation: floatUp 0.7s ease-out forwards;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+            animation: floatUp 0.6s ease-out forwards;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
             z-index: 100;
-        }
-        .floating-text.critical {
-            color: #fbbf24;
-            font-size: 2rem;
-            text-shadow: 0 0 15px rgba(251, 191, 36, 0.8);
         }
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(0.8); }
-            50% { transform: translateY(-25px) scale(1.2); }
-            100% { opacity: 0; transform: translateY(-60px) scale(1); }
+            100% { opacity: 0; transform: translateY(-50px) scale(1.1); }
         }
 
         .modal-list {
@@ -282,23 +287,17 @@
             padding: 0;
             margin: 0;
             text-align: left;
+            max-height: 180px;
+            overflow-y: auto;
         }
         .modal-list li {
             display: flex;
             justify-content: space-between;
-            padding: 5px 8px;
+            padding: 6px 10px;
             background: rgba(30, 41, 59, 0.6);
             margin-bottom: 4px;
-            border-radius: 5px;
+            border-radius: 6px;
             font-size: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .section-title {
-            font-size: 0.8rem;
-            color: #38bdf8;
-            margin: 0 0 4px 0;
-            text-align: left;
-            font-weight: 700;
         }
     </style>
 </head>
@@ -309,7 +308,7 @@
             <div class="user-name" id="user-greeting">CryptoUser</div>
             <div class="user-level" id="waifu-title">Nível 1 • Cyber Waifu</div>
         </div>
-        <button class="upgrade-card" style="padding: 3px 6px; width: auto;" onclick="claimDailyBonus()">🎁 Bónus</button>
+        <button class="float-btn" style="width: auto; height: auto; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem;" onclick="claimDailyBonus()">🎁 Bónus</button>
     </div>
 
     <div class="score-board">
@@ -317,49 +316,78 @@
         <div class="score-label">Waifu Points</div>
     </div>
 
-    <!-- ABA 1: JOGO PRINCIPAL -->
-    <div id="tab-game" class="content-panel active">
+    <!-- ÁREA DO JOGO COM BOTÕES FLUTUANTES NA VERTICAL À DIREITA -->
+    <div class="game-area">
         <div class="character-container" id="container" onclick="handleClick(event)">
-            <img id="waifu-avatar" class="waifu-img" src="https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600&auto=format&fit=crop" alt="Anime Waifu 3D">
+            <img id="waifu-avatar" class="waifu-img" src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=500&auto=format&fit=crop" alt="Waifu">
+        </div>
+
+        <div class="floating-buttons">
+            <button class="float-btn" onclick="openModal('shopModal')" title="Loja"><span>⚡</span></button>
+            <button class="float-btn" onclick="openModal('rankingModal')" title="Ranking"><span>🏆</span></button>
+            <button class="float-btn" onclick="openModal('friendsModal')" title="Amigos"><span>👥</span></button>
         </div>
     </div>
 
-    <div id="tab-upgrades" class="content-panel">
-        <h3 class="section-title">⚡ Loja de Melhorias</h3>
-        <div class="upgrades-grid">
-            <div class="upgrade-card">
-                <h4>⚡ Max Energia</h4>
-                <button onclick="buyMaxEnergyUpgrade()">Comprar (<span id="cost-energy">100</span>)</button>
+    <!-- MODAIS DE CADASECÇÃO -->
+    <div id="shopModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚡ Loja de Melhorias</h3>
+                <button class="close-modal" onclick="closeModal('shopModal')">&times;</button>
             </div>
-            <div class="upgrade-card">
-                <h4>🤖 Auto-Clicker</h4>
-                <button onclick="buyAutoClicker()">Comprar (<span id="cost-auto">150</span>)</button>
+            <div class="upgrade-item">
+                <div>
+                    <h4>Max Energia</h4>
+                    <p>Aumenta o limite máximo</p>
+                </div>
+                <button onclick="buyMaxEnergyUpgrade()"><span id="cost-energy">100</span> pts</button>
             </div>
-            <div class="upgrade-card ad-card" style="grid-column: span 2;">
-                <h4>📺 Ver Anúncio (+Energia Total)</h4>
-                <button onclick="watchAdForEnergy()">Assistir Anúncio</button>
+            <div class="upgrade-item">
+                <div>
+                    <h4>Auto-Clicker</h4>
+                    <p>Ganha pontos sozinhos</p>
+                </div>
+                <button onclick="buyAutoClicker()"><span id="cost-auto">150</span> pts</button>
+            </div>
+            <div class="upgrade-item" style="background: rgba(6, 95, 70, 0.4);">
+                <div>
+                    <h4>Recarregar Energia</h4>
+                    <p>Assistir Anúncio Adsgram</p>
+                </div>
+                <button onclick="watchAdForEnergy()" style="background: linear-gradient(135deg, #059669, #047857);">Assistir</button>
             </div>
         </div>
     </div>
 
-    <div id="tab-ranking" class="content-panel">
-        <h3 class="section-title">🏆 Top Jogadores</h3>
-        <ul id="ranking-list" class="modal-list">
-            <li>A carregar ranking...</li>
-        </ul>
+    <div id="rankingModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🏆 Top Jogadores</h3>
+                <button class="close-modal" onclick="closeModal('rankingModal')">&times;</button>
+            </div>
+            <ul id="ranking-list" class="modal-list">
+                <li>A carregar ranking...</li>
+            </ul>
+        </div>
     </div>
 
-    <div id="tab-friends" class="content-panel">
-        <h3 class="section-title">👥 Convites & Amigos</h3>
-        <div class="upgrade-card" style="padding: 10px;">
-            <h4 style="font-size: 0.75rem; color: #fff; margin-bottom: 4px;">Convida amigos e ganhem +100 pontos!</h4>
-            <button onclick="inviteFriend()" style="background: linear-gradient(135deg, #0284c7, #0369a1);">Convidar Amigo</button>
+    <div id="friendsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>👥 Convidar Amigos</h3>
+                <button class="close-modal" onclick="closeModal('friendsModal')">&times;</button>
+            </div>
+            <div style="text-align: center; display: flex; flex-direction: column; gap: 8px;">
+                <p style="font-size: 0.75rem; color: #cbd5e1;">Convida amigos para o CryptoTap e ganhem +100 pontos cada um!</p>
+                <button onclick="inviteFriend()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; color:white; padding: 8px; border-radius: 8px; font-weight:bold; cursor:pointer;">Convidar Amigo</button>
+            </div>
         </div>
     </div>
 
     <div class="music-player-bar">
-        <span>🎵 <span id="track-name">Cyber Phonk Beat (OST 1)</span></span>
-        <button class="music-btn" onclick="nextTrack()">Próxima ⏭</button>
+        <span>🎵 Música: <span class="music-status">A tocar em fundo</span></span>
+        <span style="font-size: 0.55rem; color: #94a3b8;">CryptoTap OST</span>
     </div>
 
     <div class="footer-section">
@@ -372,15 +400,9 @@
         </div>
     </div>
 
-    <div class="nav-bar">
-        <button class="nav-item active" onclick="switchTab('game', this)"><span>💖</span>Waifu</button>
-        <button class="nav-item" onclick="switchTab('upgrades', this)"><span>⚡</span>Loja</button>
-        <button class="nav-item" onclick="switchTab('ranking', this)"><span>🏆</span>Ranking</button>
-        <button class="nav-item" onclick="switchTab('friends', this)"><span>👥</span>Amigos</button>
-    </div>
-
-    <audio id="click-sound" src="https://www.myinstants.com/media/sounds/anime-waifu-sound.mp3" preload="auto"></audio>
-    <audio id="bg-music" loop preload="auto"></audio>
+    <!-- Som de clique e música de fundo -->
+    <audio id="click-sound" src="https://www.myinstants.com/media/sounds/mechanic-keyboard-clack.mp3" preload="auto"></audio>
+    <audio id="bg-music" src="https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg" loop preload="auto"></audio>
 
     <script>
         const firebaseConfig = {
@@ -400,9 +422,7 @@
             if (window.Adsgram) {
                 adController = window.Adsgram.init({ blockId: "int-47729" });
             }
-        } catch (e) {
-            console.warn("Adsgram init warning:", e);
-        }
+        } catch (e) {}
 
         let tg = window.Telegram.WebApp;
         tg.expand(); 
@@ -424,39 +444,27 @@
         let autoClickerLevel = 0;
         let lastDailyClaim = "";
 
-        const playlist = [
-            { name: "Cyber Phonk Beat (OST 1)", src: "https://commondatastorage.googleapis.com/codeskulptor-assets/jump.ogg" },
-            { name: "Electro House Hype (OST 2)", src: "https://commondatastorage.googleapis.com/codeskulptor-assets/week7-bounce.ogg" },
-            { name: "Arcade Power Synth (OST 3)", src: "https://commondatastorage.googleapis.com/codeskulptor-assets/galactic_theme.ogg" }
-        ];
-        let currentTrackIndex = 0;
         const bgMusic = document.getElementById("bg-music");
+        bgMusic.volume = 0.5;
 
-        // Lista de evoluções de Waifus com base na pontuação
-        const waifuStages = [
-            { minScore: 0, title: "Nível 1 • Cyber Waifu", img: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600&auto=format&fit=crop" },
-            { minScore: 500, title: "Nível 2 • Neon Princess", img: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=600&auto=format&fit=crop" },
-            { minScore: 2000, title: "Nível 3 • Quantum Queen", img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600&auto=format&fit=crop" }
-        ];
-        let currentStageIndex = -1;
-
-        function playMusic() {
-            bgMusic.src = playlist[currentTrackIndex].src;
-            document.getElementById("track-name").innerText = playlist[currentTrackIndex].name;
-            bgMusic.volume = 0.4;
-            bgMusic.play().catch(e => console.log("Áudio aguardando interação"));
-        }
-
-        function nextTrack() {
-            currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
-            playMusic();
-        }
-
-        document.body.addEventListener('click', () => {
+        function startAudioOnFirstInteraction() {
             if (bgMusic.paused) {
-                playMusic();
+                bgMusic.play().catch(e => {});
             }
-        }, { once: true });
+        }
+        document.body.addEventListener('click', startAudioOnFirstInteraction, { once: true });
+        document.body.addEventListener('touchstart', startAudioOnFirstInteraction, { once: true });
+
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+            if (modalId === 'rankingModal') {
+                loadRankingData();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
 
         async function loadUserData() {
             try {
@@ -475,9 +483,7 @@
                 } else {
                     saveUserData();
                 }
-            } catch (e) {
-                console.error("Erro ao carregar dados:", e);
-            }
+            } catch (e) {}
         }
 
         async function saveUserData() {
@@ -493,77 +499,42 @@
                     lastDailyClaim: lastDailyClaim,
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
-            } catch (e) {
-                console.error("Erro ao guardar dados:", e);
-            }
+            } catch (e) {}
         }
 
         loadUserData();
 
-        function switchTab(tabName, element) {
-            document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-            element.classList.add('active');
-
-            if (tabName === 'ranking') {
-                loadRankingData();
-            }
-        }
-
-        function checkWaifuEvolution() {
-            let activeStage = waifuStages[0];
-            for (let i = waifuStages.length - 1; i >= 0; i--) {
-                if (score >= waifuStages[i].minScore) {
-                    activeStage = waifuStages[i];
-                    if (currentStageIndex !== i) {
-                        currentStageIndex = i;
-                        document.getElementById("waifu-avatar").src = activeStage.img;
-                        document.getElementById("waifu-title").innerText = activeStage.title;
-                        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                    }
-                    break;
-                }
-            }
-        }
-
         function handleClick(event) {
             if (energy > 0) {
-                // Sistema de Crítico (15% de chance de dar x3 pontos)
-                let isCritical = Math.random() < 0.15;
-                let clickValue = isCritical ? 3 : 1;
-                
-                score += clickValue;
+                score += 1;
                 energy -= 1;
                 updateUI();
-                checkWaifuEvolution();
                 saveUserData();
                 
+                if (bgMusic.paused) {
+                    bgMusic.play().catch(e => {});
+                }
+
                 const clickSound = document.getElementById("click-sound");
                 clickSound.currentTime = 0;
                 clickSound.play().catch(e => {});
 
-                if (tg.HapticFeedback) {
-                    if (isCritical) tg.HapticFeedback.notificationOccurred('success');
-                    else tg.HapticFeedback.impactOccurred('medium');
-                }
-                
-                createFloatingText(event, clickValue, isCritical);
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+                createFloatingText(event);
 
                 const avatar = document.getElementById("waifu-avatar");
-                avatar.style.transform = "scale(1.06)";
+                avatar.style.transform = "scale(1.05)";
                 setTimeout(() => {
                     avatar.style.transform = "scale(1)";
-                }, 80);
+                }, 60);
             }
         }
 
-        function createFloatingText(event, value, isCritical) {
+        function createFloatingText(event) {
             const container = document.getElementById("container");
             const el = document.createElement("div");
-            el.className = isCritical ? "floating-text critical" : "floating-text";
-            el.innerText = isCritical ? `CRITICAL! +${value} 🔥` : `+${value} 💖`;
+            el.className = "floating-text";
+            el.innerText = "+1 💖";
             
             const rect = container.getBoundingClientRect();
             let x = event.clientX ? event.clientX - rect.left : rect.width / 2;
@@ -573,7 +544,7 @@
             el.style.top = `${y}px`;
             
             container.appendChild(el);
-            setTimeout(() => el.remove(), 700);
+            setTimeout(() => el.remove(), 600);
         }
 
         function updateUI() {
@@ -582,7 +553,6 @@
             document.getElementById("energy-text").innerText = `${energy} / ${maxEnergy}`;
             document.getElementById("cost-energy").innerText = maxEnergyCost;
             document.getElementById("cost-auto").innerText = autoClickerCost;
-            checkWaifuEvolution();
         }
 
         async function loadRankingData() {
@@ -616,7 +586,7 @@
             updateUI();
             saveUserData();
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            alert("🎁 +250 pontos de bónus diário adicionados!");
+            alert("🎁 +250 pontos de bónus adicionados!");
         }
 
         function watchAdForEnergy() {
@@ -625,7 +595,6 @@
                     energy = maxEnergy;
                     updateUI();
                     saveUserData();
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     alert("⚡ Energia recarregada com sucesso!");
                 }).catch((err) => {
                     energy = maxEnergy;
@@ -677,7 +646,7 @@
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             alert("Parabéns! Ganhaste +100 pontos por convidar um amigo!");
 
-            let inviteLink = `https://t.me/share/url?url=https://t.me/${botUsername}&text=Vem%20jogar%20CryptoTap%20Waifu%20comigo%20e%20ganha%20prémios!%20🚀`;
+            let inviteLink = `https://t.me/share/url?url=https://t.me/${botUsername}&text=Vem%20jogar%20CryptoTap%20comigo!%20🚀`;
             tg.openTelegramLink(inviteLink);
         }
 
