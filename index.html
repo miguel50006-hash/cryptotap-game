@@ -28,7 +28,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 12px;
+            padding: 6px 10px;
             overflow: hidden;
         }
 
@@ -37,7 +37,7 @@
             max-width: 400px;
             background: rgba(30, 41, 59, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 6px 12px;
             display: flex;
             justify-content: space-between;
@@ -48,21 +48,21 @@
             text-align: left;
         }
         .user-name {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 700;
             color: #38bdf8;
         }
         .user-level {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #c084fc;
         }
 
         .score-board {
             flex-shrink: 0;
-            margin: 4px 0;
+            margin: 2px 0;
         }
         #score {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 900;
             background: linear-gradient(135deg, #38bdf8, #c084fc, #f472b6);
             -webkit-background-clip: text;
@@ -70,13 +70,42 @@
             line-height: 1.1;
         }
         .score-label {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1.5px;
         }
 
-        /* Área Central do Jogo com Botões Flutuantes à Direita */
+        /* Balão de Diálogo Dinâmico da Waifu (Inédito!) */
+        .waifu-dialogue {
+            background: rgba(244, 114, 182, 0.15);
+            border: 1px solid rgba(244, 114, 182, 0.4);
+            color: #f472b6;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 4px 10px;
+            border-radius: 12px;
+            max-width: 320px;
+            margin: 2px auto;
+            animation: pulseDialogue 2s infinite ease-in-out;
+        }
+        @keyframes pulseDialogue {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .combo-badge {
+            font-size: 0.6rem;
+            font-weight: bold;
+            color: #f59e0b;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            padding: 2px 6px;
+            border-radius: 8px;
+            display: none;
+            margin: 1px auto;
+        }
+
         .game-area {
             position: relative;
             display: flex;
@@ -85,7 +114,8 @@
             flex-grow: 1;
             width: 100%;
             max-width: 400px;
-            margin: 4px 0;
+            margin: 2px 0;
+            overflow: hidden;
         }
 
         .character-container {
@@ -98,19 +128,20 @@
         }
         
         .waifu-img {
-            max-height: 38vh;
-            max-width: 65vw;
+            max-height: 100%;
+            max-width: 100%;
+            width: auto;
             height: auto;
             object-fit: contain;
             filter: drop-shadow(0 10px 25px rgba(192, 132, 252, 0.6));
             transition: transform 0.06s ease;
-            border-radius: 16px;
+            border-radius: 14px;
         }
         .waifu-img:active {
             transform: scale(0.92);
         }
 
-        /* Botões Flutuantes Verticais à Direita */
+        /* Botões Flutuantes à Direita */
         .floating-buttons {
             position: absolute;
             right: 4px;
@@ -118,34 +149,27 @@
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
             z-index: 20;
         }
 
         .float-btn {
             background: rgba(30, 41, 59, 0.9);
-            backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             color: white;
-            width: 44px;
-            height: 44px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transition: transform 0.2s, background 0.2s;
-        }
-        .float-btn:active {
-            transform: scale(0.9);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
         }
         .float-btn span {
-            font-size: 1.1rem;
+            font-size: 1rem;
         }
 
-        /* Modais / Painéis Deslizantes */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -153,7 +177,7 @@
             width: 100vw;
             height: 100vh;
             background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(4px);
             display: none;
             justify-content: center;
             align-items: center;
@@ -162,14 +186,13 @@
         .modal-content {
             background: #1e293b;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 16px;
+            border-radius: 14px;
             width: 85%;
-            max-width: 340px;
-            padding: 16px;
+            max-width: 320px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            gap: 10px;
             text-align: left;
         }
         .modal-header {
@@ -177,45 +200,45 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 8px;
+            padding-bottom: 6px;
         }
         .modal-header h3 {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #38bdf8;
         }
         .close-modal {
             background: none;
             border: none;
             color: #94a3b8;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             cursor: pointer;
         }
 
         .upgrade-item {
             background: rgba(15, 23, 42, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 10px;
+            border-radius: 8px;
+            padding: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .upgrade-item div h4 {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #fff;
             margin-bottom: 2px;
         }
         .upgrade-item div p {
-            font-size: 0.6rem;
+            font-size: 0.55rem;
             color: #94a3b8;
         }
         .upgrade-item button {
             background: linear-gradient(135deg, #2563eb, #1d4ed8);
             border: none;
             color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.7rem;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.65rem;
             font-weight: bold;
             cursor: pointer;
         }
@@ -223,14 +246,14 @@
         .music-player-bar {
             background: rgba(15, 23, 42, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 6px 10px;
+            border-radius: 6px;
+            padding: 4px 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             width: 100%;
             max-width: 400px;
-            font-size: 0.65rem;
+            font-size: 0.55rem;
             flex-shrink: 0;
         }
         .music-status {
@@ -242,22 +265,22 @@
             width: 100%;
             max-width: 400px;
             flex-shrink: 0;
-            margin: 4px 0;
+            margin: 2px 0;
         }
         .energy-info {
             display: flex;
             justify-content: space-between;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             color: #94a3b8;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             font-weight: 600;
         }
         .energy-bar {
             width: 100%;
             background: rgba(15, 23, 42, 0.8);
-            border-radius: 8px;
+            border-radius: 6px;
             overflow: hidden;
-            height: 10px;
+            height: 7px;
             border: 1px solid rgba(51, 65, 85, 0.8);
         }
         #energy-fill {
@@ -271,15 +294,19 @@
             position: absolute;
             font-weight: 900;
             color: #f472b6;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             pointer-events: none;
             animation: floatUp 0.6s ease-out forwards;
             text-shadow: 0 2px 8px rgba(0,0,0,0.8);
             z-index: 100;
         }
+        .floating-text.combo {
+            color: #f59e0b;
+            font-size: 1.8rem;
+        }
         @keyframes floatUp {
             0% { opacity: 1; transform: translateY(0) scale(0.8); }
-            100% { opacity: 0; transform: translateY(-50px) scale(1.1); }
+            100% { opacity: 0; transform: translateY(-45px) scale(1.1); }
         }
 
         .modal-list {
@@ -287,17 +314,17 @@
             padding: 0;
             margin: 0;
             text-align: left;
-            max-height: 180px;
+            max-height: 160px;
             overflow-y: auto;
         }
         .modal-list li {
             display: flex;
             justify-content: space-between;
-            padding: 6px 10px;
+            padding: 5px 8px;
             background: rgba(30, 41, 59, 0.6);
-            margin-bottom: 4px;
-            border-radius: 6px;
-            font-size: 0.75rem;
+            margin-bottom: 3px;
+            border-radius: 5px;
+            font-size: 0.7rem;
         }
     </style>
 </head>
@@ -308,28 +335,30 @@
             <div class="user-name" id="user-greeting">CryptoUser</div>
             <div class="user-level" id="waifu-title">Nível 1 • Cyber Waifu</div>
         </div>
-        <button class="float-btn" style="width: auto; height: auto; padding: 4px 10px; border-radius: 8px; font-size: 0.7rem;" onclick="claimDailyBonus()">🎁 Bónus</button>
+        <button class="float-btn" style="width: auto; height: auto; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem;" onclick="claimDailyBonus()">🎁 Bónus</button>
     </div>
 
     <div class="score-board">
         <div id="score">0</div>
         <div class="score-label">Waifu Points</div>
+        <div id="waifu-dialogue" class="waifu-dialogue">"Olá mestre! Estou pronta para farmar tokens!" 💕</div>
+        <div id="combo-badge" class="combo-badge">🔥 MODO FOGO (x2) ATIVO!</div>
     </div>
 
-    <!-- ÁREA DO JOGO COM BOTÕES FLUTUANTES NA VERTICAL À DIREITA -->
     <div class="game-area">
         <div class="character-container" id="container" onclick="handleClick(event)">
-            <img id="waifu-avatar" class="waifu-img" src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?q=80&w=500&auto=format&fit=crop" alt="Waifu">
+            <img id="waifu-avatar" class="waifu-img" src="https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=500&auto=format&fit=crop" alt="Waifu">
         </div>
 
         <div class="floating-buttons">
             <button class="float-btn" onclick="openModal('shopModal')" title="Loja"><span>⚡</span></button>
+            <button class="float-btn" onclick="openModal('questsModal')" title="Missões & Segredos"><span>💖</span></button>
             <button class="float-btn" onclick="openModal('rankingModal')" title="Ranking"><span>🏆</span></button>
             <button class="float-btn" onclick="openModal('friendsModal')" title="Amigos"><span>👥</span></button>
         </div>
     </div>
 
-    <!-- MODAIS DE CADASECÇÃO -->
+    <!-- MODAL LOJA -->
     <div id="shopModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -360,6 +389,31 @@
         </div>
     </div>
 
+    <!-- MODAL SEGREDOS & MISSÕES -->
+    <div id="questsModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💖 Afeição & Segredos da Waifu</h3>
+                <button class="close-modal" onclick="closeModal('questsModal')">&times;</button>
+            </div>
+            <div class="upgrade-item" style="background: rgba(244, 114, 182, 0.2); border-color: rgba(244, 114, 182, 0.4);">
+                <div>
+                    <h4>🎁 Caixa Surpresa Diária</h4>
+                    <p>Recompensa a cada 4 horas</p>
+                </div>
+                <button onclick="claimMysteryBox()" style="background: linear-gradient(135deg, #db2777, #be185d);">Abrir</button>
+            </div>
+            <div class="upgrade-item">
+                <div>
+                    <h4>Nível de Afeição</h4>
+                    <p id="affection-status">0 / 500 cliques para Nível 2</p>
+                </div>
+                <span style="font-size: 1.2rem;">✨</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL RANKING -->
     <div id="rankingModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -372,6 +426,7 @@
         </div>
     </div>
 
+    <!-- MODAL AMIGOS -->
     <div id="friendsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -379,15 +434,15 @@
                 <button class="close-modal" onclick="closeModal('friendsModal')">&times;</button>
             </div>
             <div style="text-align: center; display: flex; flex-direction: column; gap: 8px;">
-                <p style="font-size: 0.75rem; color: #cbd5e1;">Convida amigos para o CryptoTap e ganhem +100 pontos cada um!</p>
-                <button onclick="inviteFriend()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; color:white; padding: 8px; border-radius: 8px; font-weight:bold; cursor:pointer;">Convidar Amigo</button>
+                <p style="font-size: 0.7rem; color: #cbd5e1;">Convida amigos e ganhem +100 pontos cada um!</p>
+                <button onclick="inviteFriend()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; color:white; padding: 7px; border-radius: 6px; font-weight:bold; cursor:pointer;">Convidar Amigo</button>
             </div>
         </div>
     </div>
 
     <div class="music-player-bar">
         <span>🎵 Música: <span class="music-status">A tocar em fundo</span></span>
-        <span style="font-size: 0.55rem; color: #94a3b8;">CryptoTap OST</span>
+        <span style="font-size: 0.5rem; color: #94a3b8;">CryptoTap OST</span>
     </div>
 
     <div class="footer-section">
@@ -400,7 +455,6 @@
         </div>
     </div>
 
-    <!-- Som de clique e música de fundo -->
     <audio id="click-sound" src="https://www.myinstants.com/media/sounds/mechanic-keyboard-clack.mp3" preload="auto"></audio>
     <audio id="bg-music" src="https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg" loop preload="auto"></audio>
 
@@ -442,7 +496,22 @@
         let maxEnergyCost = 100;
         let autoClickerCost = 150;
         let autoClickerLevel = 0;
+        let totalClicks = 0;
         let lastDailyClaim = "";
+        let lastMysteryClaim = "";
+
+        let clickCountStreak = 0;
+        let isFireMode = false;
+        let fireModeTimer = null;
+
+        // Frases dinâmicas exclusivas da Waifu baseadas no humor
+        const waifuPhrases = [
+            "\"Mestre, continua a clicar! Vamos ficar ricos!\" 💎",
+            "\"Estás com um ritmo incrível hoje!\" 🔥",
+            "\"A minha energia quântica está a subir contigo!\" ✨",
+            "\"Não pares agora, o topo do ranking é nosso!\" 🏆",
+            "\"Adoro quando me dás tanta atenção, mestre~\" 💕"
+        ];
 
         const bgMusic = document.getElementById("bg-music");
         bgMusic.volume = 0.5;
@@ -454,6 +523,12 @@
         }
         document.body.addEventListener('click', startAudioOnFirstInteraction, { once: true });
         document.body.addEventListener('touchstart', startAudioOnFirstInteraction, { once: true });
+
+        // Mudar frase da waifu a cada 10 segundos para dar vida à app
+        setInterval(() => {
+            const randomPhrase = waifuPhrases[Math.floor(Math.random() * waifuPhrases.length)];
+            document.getElementById("waifu-dialogue").innerText = randomPhrase;
+        }, 10000);
 
         function openModal(modalId) {
             document.getElementById(modalId).style.display = 'flex';
@@ -478,7 +553,9 @@
                     maxEnergyCost = data.maxEnergyCost || 100;
                     autoClickerCost = data.autoClickerCost || 150;
                     autoClickerLevel = data.autoClickerLevel || 0;
+                    totalClicks = data.totalClicks || 0;
                     lastDailyClaim = data.lastDailyClaim || "";
+                    lastMysteryClaim = data.lastMysteryClaim || "";
                     updateUI();
                 } else {
                     saveUserData();
@@ -496,7 +573,9 @@
                     maxEnergyCost: maxEnergyCost,
                     autoClickerCost: autoClickerCost,
                     autoClickerLevel: autoClickerLevel,
+                    totalClicks: totalClicks,
                     lastDailyClaim: lastDailyClaim,
+                    lastMysteryClaim: lastMysteryClaim,
                     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                 }, { merge: true });
             } catch (e) {}
@@ -506,7 +585,25 @@
 
         function handleClick(event) {
             if (energy > 0) {
-                score += 1;
+                clickCountStreak++;
+                totalClicks++;
+
+                if (clickCountStreak >= 10 && !isFireMode) {
+                    isFireMode = true;
+                    document.getElementById("combo-badge").style.display = "block";
+                    document.getElementById("waifu-dialogue").innerText = "\"MODO FOGO ATIVADO! DOBRO DE PONTOS!\" 🔥⚡";
+                }
+
+                clearTimeout(fireModeTimer);
+                fireModeTimer = setTimeout(() => {
+                    clickCountStreak = 0;
+                    isFireMode = false;
+                    document.getElementById("combo-badge").style.display = "none";
+                }, 2000);
+
+                let pointsEarned = isFireMode ? 2 : 1;
+
+                score += pointsEarned;
                 energy -= 1;
                 updateUI();
                 saveUserData();
@@ -520,7 +617,7 @@
                 clickSound.play().catch(e => {});
 
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-                createFloatingText(event);
+                createFloatingText(event, pointsEarned, isFireMode);
 
                 const avatar = document.getElementById("waifu-avatar");
                 avatar.style.transform = "scale(1.05)";
@@ -530,11 +627,11 @@
             }
         }
 
-        function createFloatingText(event) {
+        function createFloatingText(event, value, fireActive) {
             const container = document.getElementById("container");
             const el = document.createElement("div");
-            el.className = "floating-text";
-            el.innerText = "+1 💖";
+            el.className = fireActive ? "floating-text combo" : "floating-text";
+            el.innerText = fireActive ? `+${value} 🔥` : `+${value} 💖`;
             
             const rect = container.getBoundingClientRect();
             let x = event.clientX ? event.clientX - rect.left : rect.width / 2;
@@ -553,6 +650,7 @@
             document.getElementById("energy-text").innerText = `${energy} / ${maxEnergy}`;
             document.getElementById("cost-energy").innerText = maxEnergyCost;
             document.getElementById("cost-auto").innerText = autoClickerCost;
+            document.getElementById("affection-status").innerText = `${totalClicks} / 500 cliques`;
         }
 
         async function loadRankingData() {
@@ -587,6 +685,22 @@
             saveUserData();
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
             alert("🎁 +250 pontos de bónus adicionados!");
+        }
+
+        function claimMysteryBox() {
+            const now = new Date().getTime();
+            if (lastMysteryClaim && (now - lastMysteryClaim < 4 * 60 * 60 * 1000)) {
+                alert("A Caixa Surpresa abre apenas de 4 em 4 horas!");
+                return;
+            }
+            let reward = Math.floor(Math.random() * 300) + 100;
+            score += reward;
+            lastMysteryClaim = now;
+            updateUI();
+            saveUserData();
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            alert(`💖 Afeição premiada! Ganhaste +${reward} pontos surpresa!`);
+            closeModal('questsModal');
         }
 
         function watchAdForEnergy() {
