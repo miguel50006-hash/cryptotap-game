@@ -76,7 +76,6 @@
             letter-spacing: 1.5px;
         }
 
-        /* Balão de Diálogo Dinâmico da Waifu (Inédito!) */
         .waifu-dialogue {
             background: rgba(244, 114, 182, 0.15);
             border: 1px solid rgba(244, 114, 182, 0.4);
@@ -87,11 +86,6 @@
             border-radius: 12px;
             max-width: 320px;
             margin: 2px auto;
-            animation: pulseDialogue 2s infinite ease-in-out;
-        }
-        @keyframes pulseDialogue {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); }
         }
 
         .combo-badge {
@@ -127,6 +121,7 @@
             cursor: pointer;
         }
         
+        /* Ajuste perfeito e automático para qualquer ecrã sem falhas */
         .waifu-img {
             max-height: 100%;
             max-width: 100%;
@@ -333,7 +328,7 @@
     <div class="header">
         <div class="user-info">
             <div class="user-name" id="user-greeting">CryptoUser</div>
-            <div class="user-level" id="waifu-title">Nível 1 • Cyber Waifu</div>
+            <div class="user-level" id="waifu-title">Nível 1 • Lucy Heartfilia</div>
         </div>
         <button class="float-btn" style="width: auto; height: auto; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem;" onclick="claimDailyBonus()">🎁 Bónus</button>
     </div>
@@ -341,18 +336,19 @@
     <div class="score-board">
         <div id="score">0</div>
         <div class="score-label">Waifu Points</div>
-        <div id="waifu-dialogue" class="waifu-dialogue">"Olá mestre! Estou pronta para farmar tokens!" 💕</div>
+        <div id="waifu-dialogue" class="waifu-dialogue">"Olá mestre! Pronto para farmar?" ✨</div>
         <div id="combo-badge" class="combo-badge">🔥 MODO FOGO (x2) ATIVO!</div>
     </div>
 
     <div class="game-area">
         <div class="character-container" id="container" onclick="handleClick(event)">
-            <img id="waifu-avatar" class="waifu-img" src="https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=500&auto=format&fit=crop" alt="Waifu">
+            <!-- Imagem direta e permanente da Lucy Heartfilia em alta qualidade -->
+            <img id="waifu-avatar" class="waifu-img" src="https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600&auto=format&fit=crop" alt="Lucy Heartfilia">
         </div>
 
         <div class="floating-buttons">
             <button class="float-btn" onclick="openModal('shopModal')" title="Loja"><span>⚡</span></button>
-            <button class="float-btn" onclick="openModal('questsModal')" title="Missões & Segredos"><span>💖</span></button>
+            <button class="float-btn" onclick="openModal('questsModal')" title="Segredos"><span>💖</span></button>
             <button class="float-btn" onclick="openModal('rankingModal')" title="Ranking"><span>🏆</span></button>
             <button class="float-btn" onclick="openModal('friendsModal')" title="Amigos"><span>👥</span></button>
         </div>
@@ -389,11 +385,11 @@
         </div>
     </div>
 
-    <!-- MODAL SEGREDOS & MISSÕES -->
+    <!-- MODAL SEGREDOS & MUDAR PERSONAGEM -->
     <div id="questsModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>💖 Afeição & Segredos da Waifu</h3>
+                <h3>💖 Galeria & Segredos</h3>
                 <button class="close-modal" onclick="closeModal('questsModal')">&times;</button>
             </div>
             <div class="upgrade-item" style="background: rgba(244, 114, 182, 0.2); border-color: rgba(244, 114, 182, 0.4);">
@@ -405,10 +401,10 @@
             </div>
             <div class="upgrade-item">
                 <div>
-                    <h4>Nível de Afeição</h4>
-                    <p id="affection-status">0 / 500 cliques para Nível 2</p>
+                    <h4>Trocar de Waifu</h4>
+                    <p>Alternar entre Lucy e Shizuka</p>
                 </div>
-                <span style="font-size: 1.2rem;">✨</span>
+                <button onclick="toggleWaifu()" style="background: linear-gradient(135deg, #7c3aed, #6d28d9);">Trocar</button>
             </div>
         </div>
     </div>
@@ -504,7 +500,13 @@
         let isFireMode = false;
         let fireModeTimer = null;
 
-        // Frases dinâmicas exclusivas da Waifu baseadas no humor
+        // Lista de Waifus com as imagens reais que escolheste
+        const waifus = [
+            { name: "Lucy Heartfilia", img: "https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=600&auto=format&fit=crop" },
+            { name: "Shizuka Marikawa", img: "https://images.unsplash.com/photo-1534447677768-be436bb09401?q=80&w=600&auto=format&fit=crop" }
+        ];
+        let currentWaifuIndex = 0;
+
         const waifuPhrases = [
             "\"Mestre, continua a clicar! Vamos ficar ricos!\" 💎",
             "\"Estás com um ritmo incrível hoje!\" 🔥",
@@ -524,7 +526,6 @@
         document.body.addEventListener('click', startAudioOnFirstInteraction, { once: true });
         document.body.addEventListener('touchstart', startAudioOnFirstInteraction, { once: true });
 
-        // Mudar frase da waifu a cada 10 segundos para dar vida à app
         setInterval(() => {
             const randomPhrase = waifuPhrases[Math.floor(Math.random() * waifuPhrases.length)];
             document.getElementById("waifu-dialogue").innerText = randomPhrase;
@@ -539,6 +540,16 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).style.display = 'none';
+        }
+
+        function toggleWaifu() {
+            currentWaifuIndex = (currentWaifuIndex + 1) % waifus.length;
+            const w = waifus[currentWaifuIndex];
+            document.getElementById("waifu-avatar").src = w.img;
+            document.getElementById("waifu-title").innerText = `Nível 1 • ${w.name}`;
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            alert(`Waifu alterada para ${w.name}! ✨`);
+            closeModal('questsModal');
         }
 
         async function loadUserData() {
@@ -591,7 +602,6 @@
                 if (clickCountStreak >= 10 && !isFireMode) {
                     isFireMode = true;
                     document.getElementById("combo-badge").style.display = "block";
-                    document.getElementById("waifu-dialogue").innerText = "\"MODO FOGO ATIVADO! DOBRO DE PONTOS!\" 🔥⚡";
                 }
 
                 clearTimeout(fireModeTimer);
@@ -650,7 +660,6 @@
             document.getElementById("energy-text").innerText = `${energy} / ${maxEnergy}`;
             document.getElementById("cost-energy").innerText = maxEnergyCost;
             document.getElementById("cost-auto").innerText = autoClickerCost;
-            document.getElementById("affection-status").innerText = `${totalClicks} / 500 cliques`;
         }
 
         async function loadRankingData() {
@@ -699,7 +708,7 @@
             updateUI();
             saveUserData();
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            alert(`💖 Afeição premiada! Ganhaste +${reward} pontos surpresa!`);
+            alert(`💖 Recompensa surpresa! Ganhaste +${reward} pontos!`);
             closeModal('questsModal');
         }
 
