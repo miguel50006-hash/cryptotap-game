@@ -2,765 +2,220 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CryptoTap - Waifu Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     <style>
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
+        body {
             margin: 0;
             padding: 0;
-        }
-        body {
-            background: linear-gradient(135deg, #09090e, #1a153b, #120b24);
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            text-align: center;
-            width: 100vw;
-            height: 100vh;
+            background-color: #1a153b;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
-            padding: 6px 10px;
+            justify-content: space-between;
+            height: 100vh;
             overflow: hidden;
         }
-
         .header {
-            width: 100%;
-            max-width: 400px;
-            background: rgba(30, 41, 59, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-            padding: 6px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        .user-info {
-            text-align: left;
-        }
-        .user-name {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: #38bdf8;
-        }
-        .user-level {
-            font-size: 0.55rem;
-            color: #c084fc;
-        }
-
-        .score-board {
-            flex-shrink: 0;
-            margin: 2px 0;
-        }
-        #score {
-            font-size: 1.8rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #38bdf8, #c084fc, #f472b6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1.1;
-        }
-        .score-label {
-            font-size: 0.55rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-
-        .waifu-dialogue {
-            background: rgba(244, 114, 182, 0.15);
-            border: 1px solid rgba(244, 114, 182, 0.4);
-            color: #f472b6;
-            font-size: 0.7rem;
-            font-weight: bold;
-            padding: 4px 10px;
+            margin-top: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
             border-radius: 12px;
-            max-width: 320px;
-            margin: 2px auto;
+            text-align: center;
+            width: 90%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .combo-badge {
-            font-size: 0.6rem;
+        .score-box {
+            font-size: 36px;
             font-weight: bold;
-            color: #f59e0b;
-            background: rgba(245, 158, 11, 0.15);
-            border: 1px solid rgba(245, 158, 11, 0.4);
-            padding: 2px 6px;
-            border-radius: 8px;
-            display: none;
-            margin: 1px auto;
+            color: #d8b4fe;
+            margin: 5px 0;
         }
-
-        .game-area {
+        .dialogue-box {
+            background: rgba(147, 51, 234, 0.2);
+            border: 1px solid #a855f7;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin: 8px 0;
+            animation: pulse 2s infinite;
+            text-align: center;
+            max-width: 85%;
+        }
+        .waifu-container {
             position: relative;
+            cursor: pointer;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-grow: 1;
-            width: 100%;
-            max-width: 400px;
-            margin: 2px 0;
-            overflow: hidden;
+            max-height: 50vh;
         }
-
-        .character-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        
-        .waifu-img {
-            max-height: 98%;
-            max-width: 98%;
+        .waifu-container img {
+            max-height: 42vh;
             width: auto;
-            height: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 0 25px rgba(192, 132, 252, 0.6));
-            transition: transform 0.05s ease, filter 0.05s ease;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
+            transition: transform 0.1s ease;
         }
-        .waifu-img:active {
-            transform: scale(0.93) rotate(-1deg);
-            filter: drop-shadow(0 0 35px rgba(244, 114, 182, 0.9));
+        .waifu-container img:active {
+            transform: scale(0.96);
         }
-
-        .floating-buttons {
+        /* Efeito de corações flutuantes ao tocar */
+        .heart {
             position: absolute;
-            right: 4px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            z-index: 20;
-        }
-
-        .float-btn {
-            background: rgba(30, 41, 59, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-        }
-        .float-btn span {
-            font-size: 1rem;
-        }
-
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-        }
-        .modal-content {
-            background: #1e293b;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            width: 85%;
-            max-width: 320px;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            text-align: left;
-        }
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 6px;
-        }
-        .modal-header h3 {
-            font-size: 0.85rem;
-            color: #38bdf8;
-        }
-        .close-modal {
-            background: none;
-            border: none;
-            color: #94a3b8;
-            font-size: 1.1rem;
-            cursor: pointer;
-        }
-
-        .upgrade-item {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .upgrade-item div h4 {
-            font-size: 0.7rem;
-            color: #fff;
-            margin-bottom: 2px;
-        }
-        .upgrade-item div p {
-            font-size: 0.55rem;
-            color: #94a3b8;
-        }
-        .upgrade-item button {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-size: 0.65rem;
+            color: #ff6584;
+            font-size: 24px;
             font-weight: bold;
-            cursor: pointer;
-        }
-
-        .music-player-bar {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-            padding: 4px 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 400px;
-            font-size: 0.55rem;
-            flex-shrink: 0;
-        }
-        .music-status {
-            color: #34d399;
-            font-weight: bold;
-        }
-
-        .footer-section {
-            width: 100%;
-            max-width: 400px;
-            flex-shrink: 0;
-            margin: 2px 0;
-        }
-        .energy-info {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.6rem;
-            color: #94a3b8;
-            margin-bottom: 2px;
-            font-weight: 600;
-        }
-        .energy-bar {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.8);
-            border-radius: 6px;
-            overflow: hidden;
-            height: 7px;
-            border: 1px solid rgba(51, 65, 85, 0.8);
-        }
-        #energy-fill {
-            background: linear-gradient(90deg, #10b981, #34d399);
-            height: 100%;
-            width: 100%;
-            transition: width 0.1s linear;
-        }
-
-        .floating-text {
-            position: absolute;
-            font-weight: 900;
-            color: #f472b6;
-            font-size: 1.5rem;
+            animation: floatUp 1s ease-out forwards;
             pointer-events: none;
-            animation: floatUp 0.6s ease-out forwards;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-            z-index: 100;
-        }
-        .floating-text.combo {
-            color: #f59e0b;
-            font-size: 1.8rem;
         }
         @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(0.8); }
-            100% { opacity: 0; transform: translateY(-45px) scale(1.1); }
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
         }
-
-        .modal-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            text-align: left;
-            max-height: 160px;
-            overflow-y: auto;
-        }
-        .modal-list li {
+        .nav-bar {
             display: flex;
-            justify-content: space-between;
-            padding: 5px 8px;
-            background: rgba(30, 41, 59, 0.6);
-            margin-bottom: 3px;
-            border-radius: 5px;
-            font-size: 0.7rem;
+            justify-content: space-around;
+            background: #110d26;
+            width: 100%;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-item {
+            text-align: center;
+            font-size: 11px;
+            color: #9ca3af;
+        }
+        .nav-item.active {
+            color: #ec4899;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="user-info">
-            <div class="user-name" id="user-greeting">CryptoUser</div>
-            <div class="user-level" id="waifu-title">Nível 1 • Waifu Master</div>
-        </div>
-        <button class="float-btn" style="width: auto; height: auto; padding: 4px 10px; border-radius: 6px; font-size: 0.65rem;" onclick="claimDailyBonus()">🎁 Bónus</button>
+        <div id="user-info" style="font-size: 13px; color: #a78bfa;">A carregar...</div>
+        <div class="score-box" id="score">0</div>
+        <div style="font-size: 11px; color: #9ca3af;">WAIFU POINTS</div>
+        <div class="dialogue-box" id="dialogue">"Olá! Toca em mim para começarmos!"</div>
     </div>
 
-    <div class="score-board">
-        <div id="score">0</div>
-        <div class="score-label">Waifu Points</div>
-        <div id="waifu-dialogue" class="waifu-dialogue">"Olá mestre! Toque em mim!" ✨</div>
-        <div id="combo-badge" class="combo-badge">🔥 MODO FOGO (x2) ATIVO!</div>
+    <div class="waifu-container" id="tap-area">
+        <img src="waifu.png" alt="Waifu">
     </div>
 
-    <div class="game-area">
-        <div class="character-container" id="container" onclick="handleClick(event)">
-            <!-- A tua imagem perfeita carregada diretamente do repositório -->
-            <img id="waifu-avatar" class="waifu-img" src="waifu.png" alt="Waifu Masterpiece">
-        </div>
-
-        <div class="floating-buttons">
-            <button class="float-btn" onclick="openModal('shopModal')" title="Loja"><span>⚡</span></button>
-            <button class="float-btn" onclick="openModal('questsModal')" title="Segredos"><span>💖</span></button>
-            <button class="float-btn" onclick="openModal('rankingModal')" title="Ranking"><span>🏆</span></button>
-            <button class="float-btn" onclick="openModal('friendsModal')" title="Amigos"><span>👥</span></button>
-        </div>
-    </div>
-
-    <!-- MODAL LOJA -->
-    <div id="shopModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>⚡ Loja de Melhorias</h3>
-                <button class="close-modal" onclick="closeModal('shopModal')">&times;</button>
-            </div>
-            <div class="upgrade-item">
-                <div>
-                    <h4>Max Energia</h4>
-                    <p>Aumenta o limite máximo</p>
-                </div>
-                <button onclick="buyMaxEnergyUpgrade()"><span id="cost-energy">100</span> pts</button>
-            </div>
-            <div class="upgrade-item">
-                <div>
-                    <h4>Auto-Clicker</h4>
-                    <p>Ganha pontos sozinhos</p>
-                </div>
-                <button onclick="buyAutoClicker()"><span id="cost-auto">150</span> pts</button>
-            </div>
-            <div class="upgrade-item" style="background: rgba(6, 95, 70, 0.4);">
-                <div>
-                    <h4>Recarregar Energia</h4>
-                    <p>Assistir Anúncio Adsgram</p>
-                </div>
-                <button onclick="watchAdForEnergy()" style="background: linear-gradient(135deg, #059669, #047857);">Assistir</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL SEGREDOS & GALERIA -->
-    <div id="questsModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>💖 Galeria & Segredos</h3>
-                <button class="close-modal" onclick="closeModal('questsModal')">&times;</button>
-            </div>
-            <div class="upgrade-item" style="background: rgba(244, 114, 182, 0.2); border-color: rgba(244, 114, 182, 0.4);">
-                <div>
-                    <h4>🎁 Caixa Surpresa Diária</h4>
-                    <p>Recompensa a cada 4 horas</p>
-                </div>
-                <button onclick="claimMysteryBox()" style="background: linear-gradient(135deg, #db2777, #be185d);">Abrir</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL RANKING -->
-    <div id="rankingModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>🏆 Top Jogadores</h3>
-                <button class="close-modal" onclick="closeModal('rankingModal')">&times;</button>
-            </div>
-            <ul id="ranking-list" class="modal-list">
-                <li>A carregar ranking...</li>
-            </ul>
-        </div>
-    </div>
-
-    <!-- MODAL AMIGOS -->
-    <div id="friendsModal" class="modal-overlay">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>👥 Convidar Amigos</h3>
-                <button class="close-modal" onclick="closeModal('friendsModal')">&times;</button>
-            </div>
-            <div style="text-align: center; display: flex; flex-direction: column; gap: 8px;">
-                <p style="font-size: 0.7rem; color: #cbd5e1;">Convida amigos e ganhem +100 pontos cada um!</p>
-                <button onclick="inviteFriend()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; color:white; padding: 7px; border-radius: 6px; font-weight:bold; cursor:pointer;">Convidar Amigo</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="music-player-bar">
-        <span>🎵 Música: <span class="music-status">A tocar em fundo</span></span>
-        <span style="font-size: 0.5rem; color: #94a3b8;">CryptoTap OST</span>
-    </div>
-
-    <div class="footer-section">
-        <div class="energy-info">
+    <div style="width: 90%; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
             <span>⚡ Energia</span>
             <span id="energy-text">100 / 100</span>
         </div>
-        <div class="energy-bar">
-            <div id="energy-fill"></div>
+        <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+            <div id="energy-bar" style="background: #10b981; width: 100%; height: 100%; transition: width 0.2s;"></div>
         </div>
     </div>
 
-    <audio id="click-sound" src="https://www.myinstants.com/media/sounds/mechanic-keyboard-clack.mp3" preload="auto"></audio>
-    <audio id="bg-music" src="https://commondatastorage.googleapis.com/codeskulptor-assets/Epoq-Lepidoptera.ogg" loop preload="auto"></audio>
+    <div class="nav-bar">
+        <div class="nav-item active">❤️<br>Waifu</div>
+        <div class="nav-item">⚡<br>Loja</div>
+        <div class="nav-item">🏆<br>Ranking</div>
+        <div class="nav-item">👥<br>Amigos</div>
+    </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyClU25mMR82D2j14DDvGvuMsfz74WDh6kU",
-            authDomain: "cryptotapgame.firebaseapp.com",
-            projectId: "cryptotapgame",
-            storageBucket: "cryptotapgame.firebasestorage.app",
-            messagingSenderId: "766236741548",
-            appId: "1:766236741548:web:82723606849531f52e7409"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        
-        let adController = null;
-        try {
-            if (window.Adsgram) {
-                adController = window.Adsgram.init({ blockId: "int-47729" });
-            }
-        } catch (e) {}
-
-        let tg = window.Telegram.WebApp;
-        tg.expand(); 
-
-        let userId = "guest_user";
-        let userName = "CryptoUser";
-
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            userId = String(tg.initDataUnsafe.user.id);
-            userName = tg.initDataUnsafe.user.first_name;
-            document.getElementById("user-greeting").innerText = userName;
-        }
-
-        let score = 0;
+        let points = 0;
         let energy = 100;
-        let maxEnergy = 100;
-        let maxEnergyCost = 100;
-        let autoClickerCost = 150;
-        let autoClickerLevel = 0;
-        let totalClicks = 0;
-        let lastDailyClaim = "";
-        let lastMysteryClaim = "";
+        let userName = "Utilizador";
 
-        let clickCountStreak = 0;
-        let isFireMode = false;
-        let fireModeTimer = null;
+        // Puxar o nome real do Telegram se disponível
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            userName = tg.initDataUnsafe.user.first_name;
+        }
+        document.getElementById('user-info').innerText = `${userName} • Nível 1 • Waifu Master`;
 
-        const waifuPhrases = [
-            "\"Mestre, continua a tocar em mim!\" ✨",
-            "\"Estás com um ritmo incrível hoje!\" 🔥",
-            "\"A energia quântica está ao rubro!\" 💎",
-            "\"O topo do ranking é nosso!\" 🏆"
+        // Lista de frases dinâmicas para a pessoa
+        const welcomePhrases = [
+            `Que bom ver-te por aqui, ${userName}!`,
+            `Estava a saudades tua, ${userName}! Vamos farmar?`,
+            `Força com isso, ${userName}! O topo é nosso!`,
+            `Tens mãos rápidas hoje, ${userName}?`,
+            `Pronta para te dar sorte hoje, ${userName}!`
         ];
 
-        const bgMusic = document.getElementById("bg-music");
-        bgMusic.volume = 0.5;
+        const clickPhrases = [
+            "Isso mesmo, continua a focar!",
+            "Adoro quando me dás atenção!",
+            "Mais um ponto para a nossa conta!",
+            "Estás a ir com excelente ritmo!",
+            "Não pares agora, estamos quase no topo!"
+        ];
 
-        function startAudioOnFirstInteraction() {
-            if (bgMusic.paused) {
-                bgMusic.play().catch(e => {});
-            }
-        }
-        document.body.addEventListener('click', startAudioOnFirstInteraction, { once: true });
-        document.body.addEventListener('touchstart', startAudioOnFirstInteraction, { once: true });
+        // Escolher frase inicial aleatória
+        document.getElementById('dialogue').innerText = `"${welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]}"`;
 
-        setInterval(() => {
-            const randomPhrase = waifuPhrases[Math.floor(Math.random() * waifuPhrases.length)];
-            document.getElementById("waifu-dialogue").innerText = randomPhrase;
-        }, 10000);
+        const tapArea = document.getElementById('tap-area');
+        const scoreDisplay = document.getElementById('score');
+        const dialogueDisplay = document.getElementById('dialogue');
+        const energyBar = document.getElementById('energy-bar');
+        const energyText = document.getElementById('energy-text');
 
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-            if (modalId === 'rankingModal') {
-                loadRankingData();
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        async function loadUserData() {
-            try {
-                const docRef = db.collection("players").doc(userId);
-                const doc = await docRef.get();
-                if (doc.exists) {
-                    const data = doc.data();
-                    score = data.score || 0;
-                    energy = data.energy || 100;
-                    maxEnergy = data.maxEnergy || 100;
-                    maxEnergyCost = data.maxEnergyCost || 100;
-                    autoClickerCost = data.autoClickerCost || 150;
-                    autoClickerLevel = data.autoClickerLevel || 0;
-                    totalClicks = data.totalClicks || 0;
-                    lastDailyClaim = data.lastDailyClaim || "";
-                    lastMysteryClaim = data.lastMysteryClaim || "";
-                    updateUI();
-                } else {
-                    saveUserData();
-                }
-            } catch (e) {}
-        }
-
-        async function saveUserData() {
-            try {
-                await db.collection("players").doc(userId).set({
-                    name: userName,
-                    score: score,
-                    energy: energy,
-                    maxEnergy: maxEnergy,
-                    maxEnergyCost: maxEnergyCost,
-                    autoClickerCost: autoClickerCost,
-                    autoClickerLevel: autoClickerLevel,
-                    totalClicks: totalClicks,
-                    lastDailyClaim: lastDailyClaim,
-                    lastMysteryClaim: lastMysteryClaim,
-                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-            } catch (e) {}
-        }
-
-        loadUserData();
-
-        function handleClick(event) {
+        // Sistema de cliques e interatividade
+        tapArea.addEventListener('click', (e) => {
             if (energy > 0) {
-                clickCountStreak++;
-                totalClicks++;
-
-                if (clickCountStreak >= 10 && !isFireMode) {
-                    isFireMode = true;
-                    document.getElementById("combo-badge").style.display = "block";
-                }
-
-                clearTimeout(fireModeTimer);
-                fireModeTimer = setTimeout(() => {
-                    clickCountStreak = 0;
-                    isFireMode = false;
-                    document.getElementById("combo-badge").style.display = "none";
-                }, 2000);
-
-                let pointsEarned = isFireMode ? 2 : 1;
-
-                score += pointsEarned;
+                points += 1;
                 energy -= 1;
-                updateUI();
-                saveUserData();
+                scoreDisplay.innerText = points;
                 
-                if (bgMusic.paused) {
-                    bgMusic.play().catch(e => {});
+                // Atualizar barra de energia
+                energyBar.style.width = energy + '%';
+                energyText.innerText = energy + ' / 100';
+
+                // Mudar frase a cada 5 cliques de forma divertida
+                if (points % 5 === 0) {
+                    const randomClickPhrase = clickPhrases[Math.floor(Math.random() * clickPhrases.length)];
+                    dialogueDisplay.innerText = `"${randomClickPhrase}"`;
                 }
 
-                const clickSound = document.getElementById("click-sound");
-                clickSound.currentTime = 0;
-                clickSound.play().catch(e => {});
-
-                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-                createFloatingText(event, pointsEarned, isFireMode);
-
-                const avatar = document.getElementById("waifu-avatar");
-                avatar.style.transform = "scale(1.06) rotate(-1deg)";
-                setTimeout(() => {
-                    avatar.style.transform = "scale(1) rotate(0deg)";
-                }, 60);
+                // Criar coração flutuante no local do toque
+                createHeart(e);
             }
-        }
+        });
 
-        function createFloatingText(event, value, fireActive) {
-            const container = document.getElementById("container");
-            const el = document.createElement("div");
-            el.className = fireActive ? "floating-text combo" : "floating-text";
-            el.innerText = fireActive ? `+${value} 🔥` : `+${value} 💖`;
-            
-            const rect = container.getBoundingClientRect();
-            let x = event.clientX ? event.clientX - rect.left : rect.width / 2;
-            let y = event.clientY ? event.clientY - rect.top : rect.height / 2;
-            
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
-            
-            container.appendChild(el);
-            setTimeout(() => el.remove(), 600);
-        }
-
-        function updateUI() {
-            document.getElementById("score").innerText = score.toLocaleString();
-            document.getElementById("energy-fill").style.width = (energy / maxEnergy) * 100 + "%";
-            document.getElementById("energy-text").innerText = `${energy} / ${maxEnergy}`;
-            document.getElementById("cost-energy").innerText = maxEnergyCost;
-            document.getElementById("cost-auto").innerText = autoClickerCost;
-        }
-
-        async function loadRankingData() {
-            const listEl = document.getElementById("ranking-list");
-            listEl.innerHTML = "<li>A carregar ranking...</li>";
-            try {
-                const snapshot = await db.collection("players").orderBy("score", "desc").limit(10).get();
-                listEl.innerHTML = "";
-                let rank = 1;
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    listEl.innerHTML += `<li><span>#${rank} ${data.name || 'CryptoUser'}</span> <strong>${(data.score || 0).toLocaleString()} pts</strong></li>`;
-                    rank++;
-                });
-                if (snapshot.empty) {
-                    listEl.innerHTML = "<li>Ainda sem jogadores.</li>";
-                }
-            } catch (e) {
-                listEl.innerHTML = "<li>Erro ao carregar o ranking.</li>";
-            }
-        }
-
-        function claimDailyBonus() {
-            const today = new Date().toDateString();
-            if (lastDailyClaim === today) {
-                alert("Já reclamaste o teu bónus diário hoje!");
-                return;
-            }
-            score += 250;
-            lastDailyClaim = today;
-            updateUI();
-            saveUserData();
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            alert("🎁 +250 pontos de bónus adicionados!");
-        }
-
-        function claimMysteryBox() {
-            const now = new Date().getTime();
-            if (lastMysteryClaim && (now - lastMysteryClaim < 4 * 60 * 60 * 1000)) {
-                alert("A Caixa Surpresa abre apenas de 4 em 4 horas!");
-                return;
-            }
-            let reward = Math.floor(Math.random() * 300) + 100;
-            score += reward;
-            lastMysteryClaim = now;
-            updateUI();
-            saveUserData();
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            alert(`💖 Recompensa surpresa! Ganhaste +${reward} pontos!`);
-            closeModal('questsModal');
-        }
-
-        function watchAdForEnergy() {
-            if (adController) {
-                adController.show().then((result) => {
-                    energy = maxEnergy;
-                    updateUI();
-                    saveUserData();
-                    alert("⚡ Energia recarregada com sucesso!");
-                }).catch((err) => {
-                    energy = maxEnergy;
-                    updateUI();
-                    saveUserData();
-                    alert("⚡ Energia recarregada com sucesso!");
-                });
-            } else {
-                energy = maxEnergy;
-                updateUI();
-                saveUserData();
-                alert("⚡ Energia recarregada com sucesso!");
-            }
-        }
-
-        function buyMaxEnergyUpgrade() {
-            if (score >= maxEnergyCost) {
-                score -= maxEnergyCost;
-                maxEnergy += 50;
-                energy = maxEnergy;
-                maxEnergyCost = Math.floor(maxEnergyCost * 1.5);
-                updateUI();
-                saveUserData();
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                alert("Pontos insuficientes!");
-            }
-        }
-
-        function buyAutoClicker() {
-            if (score >= autoClickerCost) {
-                score -= autoClickerCost;
-                autoClickerLevel += 1;
-                autoClickerCost = Math.floor(autoClickerCost * 1.8);
-                updateUI();
-                saveUserData();
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
-                alert("Pontos insuficientes!");
-            }
-        }
-
-        function inviteFriend() {
-            let botUsername = "MeuJogoCrypto2026"; 
-            score += 100;
-            updateUI();
-            saveUserData();
-
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            alert("Parabéns! Ganhaste +100 pontos por convidar um amigo!");
-
-            let inviteLink = `https://t.me/share/url?url=https://t.me/${botUsername}&text=Vem%20jogar%20CryptoTap%20comigo!%20🚀`;
-            tg.openTelegramLink(inviteLink);
-        }
-
+        // Regenerar energia passivamente com o tempo
         setInterval(() => {
-            let changed = false;
-            if (energy < maxEnergy) {
-                energy = Math.min(maxEnergy, energy + 2);
-                changed = true;
-            }
-            if (autoClickerLevel > 0) {
-                score += autoClickerLevel;
-                changed = true;
-            }
-            if (changed) {
-                updateUI();
-                saveUserData();
+            if (energy < 100) {
+                energy += 2;
+                if (energy > 100) energy = 100;
+                energyBar.style.width = energy + '%';
+                energyText.innerText = energy + ' / 100';
             }
         }, 1000);
+
+        function createHeart(event) {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.innerHTML = '❤️';
+            
+            // Obter coordenadas do clique relativas à área
+            const rect = tapArea.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            heart.style.left = x + 'px';
+            heart.style.top = y + 'px';
+            
+            tapArea.appendChild(heart);
+            
+            // Remover elemento após a animação terminar
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        }
     </script>
 </body>
 </html>
