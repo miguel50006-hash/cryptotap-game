@@ -6,8 +6,6 @@
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- SDK oficial do Adsgram para Anúncios Recompensados no Telegram -->
     <script src="https://sad.adsgram.ai/js/adsgram.min.js"></script>
 
     <style>
@@ -274,7 +272,6 @@
         <div class="score-box" id="score">0</div>
         <div class="score-label">Waifu Points (Cloud Sync)</div>
         <div class="dialogue-box" id="dialogue">"A sincronizar com os servidores..."</div>
-        <!-- Botão ligado ao Adsgram Recompensado -->
         <button class="ad-bonus-btn" onclick="watchAdReward()">🎁 Bónus</button>
     </div>
 
@@ -449,22 +446,17 @@
             }
         }
 
-        // --- INTEGRAÇÃO DO ADSGRAM (Recompensado) ---
-        // Cria a instância do Adsgram com o teu bloco de anúncio (substitui o 'int-XXXX' se criares conta na Adsgram)
         const adController = window.Adsgram ? window.Adsgram.init({ blockId: "int-XXXX" }) : null;
 
         async function watchAdReward() {
             if (adController) {
                 try {
-                    // Mostra o anúncio em vídeo ao utilizador
-                    const result = await adController.show();
-                    // Se o utilizador assistir até ao fim, dá a recompensa
+                    await adController.show();
                     grantAdReward();
                 } catch (e) {
                     dialogueElem.innerText = `⚠️ "Anúncio indisponível de momento."`;
                 }
             } else {
-                // Modo simulação se corrido fora do Telegram/Adsgram (ótimo para testes a solo)
                 grantAdReward();
             }
         }
@@ -549,7 +541,13 @@
                 .order('score', { ascending: false })
                 .limit(10);
 
-            let html = `<h3 style="margin-top: 0; color: #d8b4fe;">🏆 Top 10 Global</h3>`;
+            let html = `
+                <h3 style="margin-top: 0; color: #d8b4fe;">🏆 Top 10 Global</h3>
+                <p style="font-size: 11px; color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); padding: 8px; border-radius: 8px; margin-bottom: 12px;">
+                    💡 Quem ficar no <strong>Top 10 semanal</strong> ganha dinheiro, e se correr bem passa a ser diário! 🚀
+                </p>
+            `;
+            
             if (topPlayers && topPlayers.length > 0) {
                 topPlayers.forEach((p, index) => {
                     let medal = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index+1}`));
