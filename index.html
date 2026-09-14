@@ -6,6 +6,10 @@
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- SDK oficial do Adsgram para Anúncios Recompensados no Telegram -->
+    <script src="https://sad.adsgram.ai/js/adsgram.min.js"></script>
+
     <style>
         :root {
             --bg-color: #0b0614;
@@ -50,7 +54,6 @@
             position: relative;
         }
 
-        /* Botão flutuante de Anúncio / Bónus no Header */
         .ad-bonus-btn {
             position: absolute;
             right: 10px;
@@ -112,7 +115,6 @@
             max-width: 90%;
         }
 
-        /* Área da Waifu com Neon limpo e sem molduras quadradas */
         .waifu-container {
             position: relative;
             cursor: pointer;
@@ -139,7 +141,6 @@
             filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.9));
         }
 
-        /* Efeito de Estrelas nos Cliques */
         .floating-star {
             position: absolute;
             font-size: 24px;
@@ -273,11 +274,10 @@
         <div class="score-box" id="score">0</div>
         <div class="score-label">Waifu Points (Cloud Sync)</div>
         <div class="dialogue-box" id="dialogue">"A sincronizar com os servidores..."</div>
-        <!-- Botão de Anúncio / Recompensa Diária -->
+        <!-- Botão ligado ao Adsgram Recompensado -->
         <button class="ad-bonus-btn" onclick="watchAdReward()">🎁 Bónus</button>
     </div>
 
-    <!-- Imagem da Waifu com Neon -->
     <div class="waifu-container" id="tap-area">
         <img src="waifu.png" alt="Waifu">
     </div>
@@ -292,7 +292,6 @@
         </div>
     </div>
 
-    <!-- Barra de Navegação com o botão Waifu a funcionar perfeitamente -->
     <div class="nav-bar">
         <button class="nav-item active" id="nav-waifu" onclick="switchTab('waifu')">
             <span class="nav-icon">❤️</span>Waifu
@@ -450,19 +449,35 @@
             }
         }
 
-        // Função de Recompensa por Anúncio simulada com bónus imediato de pontos
-        function watchAdReward() {
-            points += 100;
+        // --- INTEGRAÇÃO DO ADSGRAM (Recompensado) ---
+        // Cria a instância do Adsgram com o teu bloco de anúncio (substitui o 'int-XXXX' se criares conta na Adsgram)
+        const adController = window.Adsgram ? window.Adsgram.init({ blockId: "int-XXXX" }) : null;
+
+        async function watchAdReward() {
+            if (adController) {
+                try {
+                    // Mostra o anúncio em vídeo ao utilizador
+                    const result = await adController.show();
+                    // Se o utilizador assistir até ao fim, dá a recompensa
+                    grantAdReward();
+                } catch (e) {
+                    dialogueElem.innerText = `⚠️ "Anúncio indisponível de momento."`;
+                }
+            } else {
+                // Modo simulação se corrido fora do Telegram/Adsgram (ótimo para testes a solo)
+                grantAdReward();
+            }
+        }
+
+        function grantAdReward() {
+            points += 150;
             scoreDisplay.innerText = points;
-            dialogueElem.innerText = `🎁 "Anúncio visto! +100 Waifu Points!"`;
+            dialogueElem.innerText = `🎁 "Parabéns! +150 Waifu Points adicionados!"`;
             syncScoreToCloud();
-            
-            // Efeito visual de alerta no topo
             scoreDisplay.classList.add('crit-pop');
             setTimeout(() => scoreDisplay.classList.remove('crit-pop'), 300);
         }
 
-        // Navegação corrigida (o botão Waifu fecha modais e foca no jogo)
         function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             const modal = document.getElementById('game-modal');
