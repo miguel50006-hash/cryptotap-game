@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- Supabase JS Client para gercar a nuvem e o ranking -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
-            --bg-color: #120f29;
+            --bg-color: #0b0614;
             --card-bg: rgba(255, 255, 255, 0.04);
             --border-color: rgba(255, 255, 255, 0.08);
             --accent-purple: #a855f7;
@@ -88,9 +87,9 @@
             margin: 4px auto 0 auto;
             display: inline-block;
             max-width: 95%;
-            transition: all 0.2s ease;
         }
 
+        /* Área da Waifu sem caixas/quadrados, com brilho Neon direto na imagem */
         .waifu-container {
             position: relative;
             cursor: pointer;
@@ -103,42 +102,36 @@
         }
 
         .waifu-container img {
-            max-height: 38vh;
+            max-height: 40vh;
             width: auto;
             max-width: 85vw;
-            border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(168, 85, 247, 0.2);
-            border: 1px solid var(--border-color);
-            transition: transform 0.08s ease;
+            border-radius: 12px;
+            /* Efeito Neon Roxo brilhante à volta da imagem sem moldura sólida */
+            filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.7)) drop-shadow(0 0 35px rgba(236, 72, 153, 0.4));
+            transition: transform 0.08s ease, filter 0.1s ease;
             object-fit: contain;
         }
 
         .waifu-container img:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
+            filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.9));
         }
 
-        .floating-text {
+        /* Efeito de estrelas a subir ao clicar */
+        .floating-star {
             position: absolute;
-            font-weight: 900;
-            animation: floatUp 0.8s ease-out forwards;
-            pointer-events: none;
-            z-index: 20;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-        }
-
-        .heart {
-            color: var(--accent-pink);
             font-size: 24px;
+            font-weight: bold;
+            animation: starFloat 0.9s ease-out forwards;
+            pointer-events: none;
+            z-index: 30;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
         }
 
-        .crit-text {
-            color: var(--accent-gold);
-            font-size: 28px;
-        }
-
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(0.8); opacity: 1; }
-            100% { transform: translateY(-85px) scale(1.4); opacity: 0; }
+        @keyframes starFloat {
+            0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
+            50% { opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.3) rotate(360deg); opacity: 0; }
         }
 
         .footer-section {
@@ -205,82 +198,45 @@
 
         .modal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.75);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100; opacity: 0; pointer-events: none;
+            transition: opacity 0.2s ease; backdrop-filter: blur(5px);
         }
 
-        .modal.open {
-            opacity: 1;
-            pointer-events: auto;
-        }
+        .modal.open { opacity: 1; pointer-events: auto; }
 
         .modal-content {
             background: #1a153b;
             border: 1px solid rgba(168, 85, 247, 0.4);
-            width: 88%;
-            max-width: 330px;
-            padding: 20px;
-            border-radius: 20px;
-            text-align: center;
+            width: 88%; max-width: 330px; padding: 20px;
+            border-radius: 20px; text-align: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            max-height: 85vh;
-            overflow-y: auto;
+            max-height: 85vh; overflow-y: auto;
         }
 
         .shop-item {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 12px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            padding: 10px; border-radius: 12px; margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center;
         }
 
         .shop-btn {
-            background: var(--accent-purple);
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            cursor: pointer;
+            background: var(--accent-purple); color: white; border: none;
+            padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
         }
 
         .ranking-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 12px;
-            border-radius: 6px;
-            margin-bottom: 4px;
+            display: flex; justify-content: space-between; padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 12px; border-radius: 6px; margin-bottom: 4px;
         }
 
         .modal-close {
-            margin-top: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
+            margin-top: 15px; background: rgba(255, 255, 255, 0.1); color: white;
+            border: none; padding: 8px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%;
         }
     </style>
 </head>
@@ -293,6 +249,7 @@
         <div class="dialogue-box" id="dialogue">"A sincronizar com os servidores..."</div>
     </div>
 
+    <!-- Imagem sem caixas, com neon à volta -->
     <div class="waifu-container" id="tap-area">
         <img src="waifu.png" alt="Waifu">
     </div>
@@ -308,18 +265,10 @@
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active" id="nav-waifu" onclick="switchTab('waifu')">
-            <span class="nav-icon">❤️</span>Waifu
-        </div>
-        <div class="nav-item" id="nav-loja" onclick="switchTab('loja')">
-            <span class="nav-icon">⚡</span>Loja
-        </div>
-        <div class="nav-item" id="nav-ranking" onclick="switchTab('ranking')">
-            <span class="nav-icon">🏆</span>Ranking
-        </div>
-        <div class="nav-item" id="nav-amigos" onclick="switchTab('amigos')">
-            <span class="nav-icon">👥</span>Amigos
-        </div>
+        <div class="nav-item active" id="nav-waifu" onclick="switchTab('waifu')"><span class="nav-icon">❤️</span>Waifu</div>
+        <div class="nav-item" id="nav-loja" onclick="switchTab('loja')"><span class="nav-icon">⚡</span>Loja</div>
+        <div class="nav-item" id="nav-ranking" onclick="switchTab('ranking')"><span class="nav-icon">🏆</span>Ranking</div>
+        <div class="nav-item" id="nav-amigos" onclick="switchTab('amigos')"><span class="nav-icon">👥</span>Amigos</div>
     </div>
 
     <div class="modal" id="game-modal">
@@ -327,18 +276,15 @@
     </div>
 
     <script>
-        // --- CONFIGURAÇÃO DA NUVEM (SUPABASE) ---
-        // Credenciais ligadas ao teu projeto Supabase estbfgbquhtnxiizmwqzp
         const SUPABASE_URL = 'https://stbfgbquhtnxiizmwqzp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_LRJvCKIncO1YpBfi-bI_Pw_D_9WmU74';
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let points = 0;
         let energy = 100;
         let maxEnergy = 100;
         let userLevel = 1;
-        let userId = "user_" + Math.floor(Math.random() * 100000); // ID temporário caso abra fora do Telegram
+        let userId = "user_" + Math.floor(Math.random() * 100000);
         let userName = "Miguel";
         let tapPower = 1;
         let energyRegenRate = 2;
@@ -350,9 +296,8 @@
             if (tg.initDataUnsafe.user.first_name) userName = tg.initDataUnsafe.user.first_name;
         }
 
-        // Carregar dados iniciais do jogador a partir da Nuvem
         async function loadPlayerData() {
-            const { data, error } = await supabaseClient
+            const { data } = await supabaseClient
                 .from('players')
                 .select('*')
                 .eq('telegram_id', userId)
@@ -363,7 +308,6 @@
                 userLevel = Math.floor(points / 100) + 1;
                 document.getElementById('score').innerText = points;
             } else {
-                // Se o jogador não existir na base de dados, cria o registo inicial
                 await supabaseClient.from('players').insert([
                     { telegram_id: userId, username: userName, score: 0 }
                 ]);
@@ -373,7 +317,6 @@
         }
         loadPlayerData();
 
-        // Sincronizar pontos na nuvem (com salvamento otimizado)
         let saveTimeout = null;
         function syncScoreToCloud() {
             clearTimeout(saveTimeout);
@@ -382,7 +325,7 @@
                     .from('players')
                     .update({ score: points, username: userName })
                     .eq('telegram_id', userId);
-            }, 1000); // Guarda na nuvem 1 segundo após o último clique para poupar largura de banda
+            }, 1000);
         }
 
         function updateUserInfo() {
@@ -390,7 +333,6 @@
             if (userLevel >= 2) titleName = "Conhecida";
             if (userLevel >= 3) titleName = "Amiga";
             if (userLevel >= 5) titleName = "Waifu Master";
-            
             document.getElementById('user-info').innerText = `${userName} • Nível ${userLevel} • ${titleName}`;
         }
 
@@ -399,8 +341,7 @@
             "Isso mesmo, continua a focar!",
             "Adoro quando me dás atenção!",
             "Mais pontos para a nossa conta!",
-            "Estás a ir com excelente ritmo!",
-            "Uau, que velocidade incrível!"
+            "Estás a ir com excelente ritmo!"
         ];
 
         const tapArea = document.getElementById('tap-area');
@@ -408,6 +349,7 @@
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
 
+        // Evento de clique com chuva de estrelas
         tapArea.addEventListener('pointerdown', (e) => {
             if (energy > 0) {
                 let earned = tapPower;
@@ -417,7 +359,7 @@
                     earned *= 3;
                     scoreDisplay.classList.add('crit-pop');
                     setTimeout(() => scoreDisplay.classList.remove('crit-pop'), 150);
-                    dialogueElem.innerText = `🔥 "CRÍTICO NA NUVEM! Força, ${userName}!"`;
+                    dialogueElem.innerText = `🔥 "CRÍTICO! Força, ${userName}!"`;
                 }
 
                 points += earned;
@@ -430,14 +372,16 @@
                 let newLevel = Math.floor(points / 100) + 1;
                 if (newLevel > userLevel) {
                     userLevel = newLevel;
-                    dialogueElem.innerText = `🎉 "Nível ${userLevel} atingido na nuvem!"`;
+                    dialogueElem.innerText = `🎉 "Nível ${userLevel} alcançado!"`;
                 } else if (!isCrit && points % 6 === 0) {
                     dialogueElem.innerText = `"${clickPhrases[Math.floor(Math.random() * clickPhrases.length)]}"`;
                 }
 
                 updateUserInfo();
                 syncScoreToCloud();
-                createFloatingEffect(e, isCrit ? `+${earned} CRIT!` : '❤️', isCrit);
+                
+                // Criação de múltiplas estrelas a cada clique
+                createStarEffect(e);
             } else {
                 dialogueElem.innerText = `💤 "A energia esgotou-se... Calma!"`;
             }
@@ -451,48 +395,49 @@
             }
         }, 1000);
 
-        function createFloatingEffect(event, text, isCrit) {
-            const el = document.createElement('div');
-            el.classList.add('floating-text');
-            el.classList.add(isCrit ? 'crit-text' : 'heart');
-            el.innerHTML = text;
-            
+        function createStarEffect(event) {
             const rect = tapArea.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
-            
-            el.style.left = (x - 15) + 'px';
-            el.style.top = (y - 15) + 'px';
-            
-            tapArea.appendChild(el);
-            setTimeout(() => el.remove(), 800);
+
+            // Gera entre 2 a 3 estrelas por toque para um efeito rico e profissional
+            for (let i = 0; i < 3; i++) {
+                const star = document.createElement('div');
+                star.classList.add('floating-star');
+                star.innerHTML = i === 0 ? '⭐' : (i === 1 ? '✨' : '🌟');
+                
+                // Pequena variação aleatória na posição de saída
+                const offsetX = (Math.random() - 0.5) * 50;
+                const offsetY = (Math.random() - 0.5) * 30;
+                
+                star.style.left = (x + offsetX) + 'px';
+                star.style.top = (y + offsetY) + 'px';
+                
+                tapArea.appendChild(star);
+                setTimeout(() => star.remove(), 900);
+            }
         }
 
         function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-
             const modal = document.getElementById('game-modal');
             const modalBody = document.getElementById('modal-body-content');
 
             if (tab === 'waifu') {
                 document.getElementById('nav-waifu').classList.add('active');
                 modal.classList.remove('open');
-            } 
-            else if (tab === 'loja') {
+            } else if (tab === 'loja') {
                 document.getElementById('nav-loja').classList.add('active');
                 renderShopModal(modalBody);
                 modal.classList.add('open');
-            } 
-            else if (tab === 'ranking') {
+            } else if (tab === 'ranking') {
                 document.getElementById('nav-ranking').classList.add('active');
                 renderRankingModal(modalBody);
                 modal.classList.add('open');
-            } 
-            else if (tab === 'amigos') {
+            } else if (tab === 'amigos') {
                 document.getElementById('nav-amigos').classList.add('active');
                 const botUrl = "https://t.me/MeuJogoCrypto2026_bot";
-                const shareText = encodeURIComponent(`Junta-te a mim no Crypto Tap Game e luta pelo Top 10 diário! 🚀`);
-                
+                const shareText = encodeURIComponent(`Junta-te a mim no Crypto Tap Game e luta pelo Top 10! 🚀`);
                 if (tg && tg.openTelegramLink) {
                     tg.openTelegramLink(`https://t.me/share/url?url=${botUrl}&text=${shareText}`);
                 } else {
@@ -504,25 +449,16 @@
         function renderShopModal(container) {
             let multitapCost = 50 * tapPower;
             let energyCost = 80;
-
             container.innerHTML = `
                 <h3 style="margin-top: 0; color: #d8b4fe;">⚡ Loja Global</h3>
-                <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 15px;">Os upgrades ficam guardados na nuvem!</p>
-                
                 <div class="shop-item">
-                    <div style="text-align: left; font-size: 12px;">
-                        <strong>Multitap (+1)</strong><br><span style="color: #a78bfa;">Nível ${tapPower}</span>
-                    </div>
+                    <div style="text-align: left; font-size: 12px;"><strong>Multitap (+1)</strong><br><span style="color: #a78bfa;">Nível ${tapPower}</span></div>
                     <button class="shop-btn" onclick="buyUpgrade('multitap', ${multitapCost})">${multitapCost} WP</button>
                 </div>
-
                 <div class="shop-item">
-                    <div style="text-align: left; font-size: 12px;">
-                        <strong>Max Energia (+50)</strong><br><span style="color: #a78bfa;">Atual: ${maxEnergy}</span>
-                    </div>
+                    <div style="text-align: left; font-size: 12px;"><strong>Max Energia (+50)</strong><br><span style="color: #a78bfa;">Atual: ${maxEnergy}</span></div>
                     <button class="shop-btn" onclick="buyUpgrade('energy', ${energyCost})">${energyCost} WP</button>
                 </div>
-
                 <button class="modal-close" onclick="closeModal()">Fechar</button>
             `;
         }
@@ -545,32 +481,23 @@
             }
         }
 
-        // Puxar o Top 10 real direto da Nuvem
         async function renderRankingModal(container) {
-            container.innerHTML = `<h3 style="color: #d8b4fe;">🏆 Top 10 Global</h3><p style="font-size:12px; color:#9ca3af;">A carregar melhores jogadores...</p>`;
-            
-            const { data: topPlayers, error } = await supabaseClient
+            container.innerHTML = `<h3 style="color: #d8b4fe;">🏆 Top 10 Global</h3><p style="font-size:12px; color:#9ca3af;">A carregar...</p>`;
+            const { data: topPlayers } = await supabaseClient
                 .from('players')
                 .select('username, score')
                 .order('score', { ascending: false })
                 .limit(10);
 
-            let html = `<h3 style="margin-top: 0; color: #d8b4fe;">🏆 Top 10 Global</h3><p style="font-size: 11px; color: #cbd5e1; margin-bottom: 12px;">Os prémios diários saem daqui!</p>`;
-            
+            let html = `<h3 style="margin-top: 0; color: #d8b4fe;">🏆 Top 10 Global</h3>`;
             if (topPlayers && topPlayers.length > 0) {
-                topPlayers.forEach((player, index) => {
+                topPlayers.forEach((p, index) => {
                     let medal = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index+1}`));
-                    html += `
-                        <div class="ranking-row">
-                            <span>${medal} <strong>${player.username || 'Anónimo'}</strong></span>
-                            <span style="color: #a78bfa; font-weight: bold;">${player.score} WP</span>
-                        </div>
-                    `;
+                    html += `<div class="ranking-row"><span>${medal} <strong>${p.username || 'Anónimo'}</strong></span><span style="color: #a78bfa; font-weight: bold;">${p.score} WP</span></div>`;
                 });
             } else {
-                html += `<p style="font-size: 12px;">Ainda sem registos na nuvem.</p>`;
+                html += `<p style="font-size: 12px;">Ainda sem registos.</p>`;
             }
-
             html += `<button class="modal-close" onclick="closeModal()">Fechar</button>`;
             container.innerHTML = html;
         }
