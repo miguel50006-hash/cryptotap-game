@@ -30,7 +30,6 @@
         body {
             margin: 0;
             padding: 0;
-            /* Força o conteúdo a começar abaixo da câmara do Telegram */
             padding-top: 52px;
             padding-bottom: env(safe-area-inset-bottom, 8px);
             background-color: var(--bg-color);
@@ -449,7 +448,8 @@
             }
         }
 
-        const adController = window.Adsgram ? window.Adsgram.init({ blockId: "int-XXXX" }) : null;
+        // Configurado com o UnitID real da Adsgram (int-47862)
+        const adController = window.Adsgram ? window.Adsgram.init({ blockId: "int-47862" }) : null;
 
         async function watchAdReward() {
             if (adController) {
