@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Waifu Tap Game</title>
+    <title>Crypto Tap Game</title>
     <!-- Supabase Client SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -64,7 +64,7 @@
             transition: transform 0.05s ease;
         }
         .character-card:active { transform: scale(0.97); }
-        .character-card img { width: 100%; height: 100%; object-fit: cover; }
+        .character-card img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
 
         /* Bottom section */
         .bottom-panel {
@@ -113,20 +113,20 @@
         .nav-item.active { color: #f43f5e; }
         .nav-item span.icon { font-size: 18px; }
 
-        /* Leaderboard Modal Overlay */
-        #leaderboard-modal {
+        /* Modal Overlay para Ranking e Lojas */
+        .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(11, 6, 20, 0.9);
+            background: rgba(11, 6, 20, 0.95);
             z-index: 100;
             flex-direction: column;
             padding: 20px;
             box-sizing: border-box;
         }
-        .lb-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .lb-list { overflow-y: auto; flex-grow: 1; }
-        .lb-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 14px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        .modal-body { overflow-y: auto; flex-grow: 1; }
+        .lb-row { display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
     </style>
 </head>
 <body>
@@ -139,11 +139,10 @@
         <div class="dialogue" id="dialogue-text">"Isso mesmo, continua a focar!"</div>
     </div>
 
-    <!-- Main Tap Character -->
+    <!-- Main Tap Character com a tua imagem exata -->
     <div class="game-container" onclick="tapCharacter()">
         <div class="character-card">
-            <!-- Podes colocar aqui o link da imagem da tua waifu -->
-            <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400" alt="Waifu">
+            <img src="https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400" alt="Waifu" id="waifu-img">
         </div>
     </div>
 
@@ -157,13 +156,13 @@
             <div class="energy-bar-fill" id="energy-fill"></div>
         </div>
 
-        <!-- Navigation Menu -->
+        <!-- Navigation Menu com os botões corrigidos e funcionais -->
         <div class="nav-bar">
-            <button class="nav-item active">
+            <button class="nav-item active" onclick="switchTab('waifu')">
                 <span class="icon">❤️</span>
                 Waifu
             </button>
-            <button class="nav-item" onclick="alert('Loja em breve!')">
+            <button class="nav-item" onclick="openModal('Loja', 'A Loja estará disponível em breve!')">
                 <span class="icon">⚡</span>
                 Loja
             </button>
@@ -171,29 +170,40 @@
                 <span class="icon">🏆</span>
                 Ranking
             </button>
-            <button class="nav-item" onclick="alert('Secção de amigos!')">
+            <button class="nav-item" onclick="openModal('Amigos', 'Convida amigos para ganharem bónus juntos!')">
                 <span class="icon">👥</span>
                 Amigos
             </button>
         </div>
     </div>
 
-    <!-- Ranking Modal -->
-    <div id="leaderboard-modal">
-        <div class="lb-header">
-            <h3>🏆 Ranking Global</h3>
-            <button onclick="closeLeaderboard()" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;">✕</button>
+    <!-- Modal Dinâmico para Avisos/Loja/Amigos -->
+    <div id="generic-modal" class="modal">
+        <div class="modal-header">
+            <h3 id="modal-title" style="margin:0; color:#f43f5e;">Título</h3>
+            <button onclick="closeModal('generic-modal')" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
         </div>
-        <div class="lb-list" id="lb-content">A carregar ranking...</div>
+        <div class="modal-body" id="modal-text" style="color:#cbd5e1; font-size:14px; text-align:center; padding-top:20px;">
+            Conteúdo
+        </div>
+    </div>
+
+    <!-- Ranking Modal Dedicado -->
+    <div id="leaderboard-modal" class="modal">
+        <div class="modal-header">
+            <h3 style="margin:0; color:#facc15;">🏆 Ranking Global</h3>
+            <button onclick="closeModal('leaderboard-modal')" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
+        </div>
+        <div class="modal-body" id="lb-content">A carregar ranking da nuvem...</div>
     </div>
 
     <script>
-        // Configuração do Supabase ligada à tua base de dados
+        // Configuração do Supabase ligada ao teu projeto
         const SUPABASE_URL = 'https://stbfgbquhtnxiizmwqzp.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_LRJvCKIncO1YpBfi-bI_Pw_D_9WmU74';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // Identificação simulada do jogador atual (pode ser ligada ao Telegram WebApp depois)
+        // Dados do jogador
         const player = {
             telegram_id: 'miguel_50006',
             username: 'Miguel'
@@ -203,7 +213,7 @@
         let energy = 100;
 
         async function tapCharacter() {
-            if (energy <= 0) return; // Se não houver energia, não deixa clicar
+            if (energy <= 0) return; // Se gastar a energia toda, para
 
             score += 1;
             energy -= 1;
@@ -212,7 +222,7 @@
             document.getElementById('energy-text').innerText = energy + ' / 100';
             document.getElementById('energy-fill').style.width = energy + '%';
 
-            // Guarda os pontos diretamente na tabela 'players' na nuvem do Supabase
+            // Envia o score atualizado diretamente para a tabela 'players' no Supabase
             const { error } = await supabaseClient
                 .from('players')
                 .upsert({ 
@@ -222,11 +232,11 @@
                 }, { onConflict: 'telegram_id' });
 
             if (error) {
-                console.error('Erro ao sincronizar com o Supabase:', error.message);
+                console.error('Erro ao guardar no Supabase:', error.message);
             }
         }
 
-        // Recuperar e regenerar energia aos poucos
+        // Recuperação de energia automática ao longo do tempo
         setInterval(() => {
             if (energy < 100) {
                 energy += 1;
@@ -235,10 +245,22 @@
             }
         }, 1000);
 
+        // Funções de navegação dos botões inferiores
+        function switchTab(tab) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        function openModal(title, text) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-text').innerText = text;
+            document.getElementById('generic-modal').style.display = 'flex';
+        }
+
         async function openLeaderboard() {
             document.getElementById('leaderboard-modal').style.display = 'flex';
             const lbContent = document.getElementById('lb-content');
-            lbContent.innerHTML = 'A carregar...';
+            lbContent.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">A carregar classificações...</div>';
 
             const { data, error } = await supabaseClient
                 .from('players')
@@ -247,25 +269,25 @@
                 .limit(10);
 
             if (error) {
-                lbContent.innerHTML = 'Erro ao carregar o ranking da nuvem.';
+                lbContent.innerHTML = '<div style="text-align:center; padding:20px; color:#f87171;">Erro ao carregar o ranking da nuvem.</div>';
                 return;
             }
 
             if (!data || data.length === 0) {
-                lbContent.innerHTML = '<div style="text-align:center; margin-top:20px; color:#94a3b8;">Ainda sem jogadores no ranking. Dá o primeiro clique!</div>';
+                lbContent.innerHTML = '<div style="text-align:center; padding:20px; color:#94a3b8;">Ainda sem jogadores registados. Clica na Waifu para entrar no ranking!</div>';
                 return;
             }
 
             lbContent.innerHTML = data.map((p, index) => `
                 <div class="lb-row">
                     <span><strong>#${index + 1}</strong> ${p.username}</span>
-                    <span style="color:#facc15;">${p.score} pts</span>
+                    <span style="color:#facc15; font-weight:bold;">${p.score} pts</span>
                 </div>
             `).join('');
         }
 
-        function closeLeaderboard() {
-            document.getElementById('leaderboard-modal').style.display = 'none';
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
     </script>
 </body>
