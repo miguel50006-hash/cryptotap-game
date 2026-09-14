@@ -448,19 +448,23 @@
             }
         }
 
-        // Configurado com o UnitID real da Adsgram (int-47862)
+        // Inicialização do SDK da Adsgram com o blockId real
         const adController = window.Adsgram ? window.Adsgram.init({ blockId: "int-47862" }) : null;
 
         async function watchAdReward() {
             if (adController) {
                 try {
+                    dialogueElem.innerText = `⏳ "A carregar anúncio..."`;
                     await adController.show();
+                    // Se o anúncio reproduzir e for concluído com sucesso:
                     grantAdReward();
                 } catch (e) {
+                    // Mostra o motivo exato caso a Adsgram recuse ou falhe
+                    console.error("Adsgram error:", e);
                     dialogueElem.innerText = `⚠️ "Anúncio indisponível de momento."`;
                 }
             } else {
-                grantAdReward();
+                dialogueElem.innerText = `⚠️ "SDK da Adsgram não carregado."`;
             }
         }
 
