@@ -6,8 +6,6 @@
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Adsgram SDK com async para garantir carregamento -->
-    <script src="https://sad.adsgram.ai/js/adsgram.min.js" async></script>
 
     <style>
         :root {
@@ -449,24 +447,46 @@
             }
         }
 
-        // Função segura para inicializar e chamar o anúncio da Adsgram
-        async function watchAdReward() {
-            if (typeof window.Adsgram === 'undefined') {
-                dialogueElem.innerText = `⚠️ "A carregar rede de anúncios... Tenta de novo."`;
-                return;
+        // Sistema dinâmico e resiliente para disparar o anúncio da Adsgram
+        function watchAdReward() {
+            dialogueElem.innerText = `⏳ "A carregar anúncio..."`;
+
+            if (typeof window.Adsgram !== 'undefined') {
+                try {
+                    const adController = window.Adsgram.init({ blockId: "int-47862" });
+                    adController.show()
+                        .then(() => {
+                            grantAdReward();
+                        })
+                        .catch((err) => {
+                            console.error("Adsgram show error:", err);
+                            // Fallback automático para garantir que o jogador ganha pontos se o ad falhar
+                            grantAdReward();
+                        });
+                    return;
+                } catch (e) {
+                    console.error("Adsgram init error:", e);
+                }
             }
 
-            try {
-                dialogueElem.innerText = `⏳ "A preparar anúncio..."`;
-                const adController = window.Adsgram.init({ blockId: "int-47862" });
-                await adController.show();
-                
-                // Se o utilizador vir o anúncio até ao fim:
+            // Injeção dinâmica do SDK caso não estivesse carregado
+            const script = document.createElement('script');
+            script.src = "https://sad.adsgram.ai/js/adsgram.min.js";
+            script.onload = () => {
+                try {
+                    const adController = window.Adsgram.init({ blockId: "int-47862" });
+                    adController.show()
+                        .then(() => { grantAdReward(); })
+                        .catch(() => { grantAdReward(); });
+                } catch (ex) {
+                    grantAdReward();
+                }
+            };
+            script.onerror = () => {
+                // Se a rede bloquear o script por completo, dá o bónus para não bloquear a experiência
                 grantAdReward();
-            } catch (e) {
-                console.error("Adsgram error:", e);
-                dialogueElem.innerText = `⚠️ "Nenhum anúncio disponível de momento."`;
-            }
+            };
+            document.head.appendChild(script);
         }
 
         function grantAdReward() {
