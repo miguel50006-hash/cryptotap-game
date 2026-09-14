@@ -2,49 +2,88 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        :root {
+            --bg-color: #120f29;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-purple: #a855f7;
+            --accent-pink: #ec4899;
+            --text-main: #ffffff;
+            --text-muted: #9ca3af;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             margin: 0;
             padding: 0;
-            background-color: #1a153b;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: space-between;
             height: 100vh;
+            height: 100dvh;
             overflow: hidden;
         }
+
         .header {
-            margin-top: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 8px 15px;
-            border-radius: 12px;
+            margin: 8px 12px 0 12px;
+            background: var(--card-bg);
+            padding: 10px 14px;
+            border-radius: 16px;
             text-align: center;
-            width: 90%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
         }
-        .score-box {
-            font-size: 36px;
-            font-weight: bold;
+
+        .user-greeting {
+            font-size: 12px;
             color: #d8b4fe;
-            margin: 5px 0;
+            font-weight: 500;
+            letter-spacing: 0.3px;
         }
+
+        .score-box {
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1.1;
+            margin: 4px 0;
+            text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+        }
+
+        .score-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
         .dialogue-box {
-            background: rgba(147, 51, 234, 0.2);
-            border: 1px solid #a855f7;
-            padding: 8px 16px;
+            background: rgba(147, 51, 234, 0.15);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            padding: 6px 14px;
             border-radius: 20px;
-            font-size: 14px;
-            margin: 8px 0;
-            animation: pulse 2s infinite;
-            text-align: center;
-            max-width: 85%;
+            font-size: 13px;
+            color: #f3e8ff;
+            margin: 6px auto 0 auto;
+            display: inline-block;
+            max-width: 95%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.2s ease;
         }
+
         .waifu-container {
             position: relative;
             cursor: pointer;
@@ -52,96 +91,160 @@
             justify-content: center;
             align-items: center;
             flex-grow: 1;
-            max-height: 50vh;
+            width: 100%;
+            padding: 10px 0;
         }
+
         .waifu-container img {
             max-height: 42vh;
             width: auto;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(168, 85, 247, 0.3);
-            transition: transform 0.1s ease;
+            max-width: 88vw;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 85, 247, 0.2);
+            border: 1px solid var(--border-color);
+            transition: transform 0.08s ease;
+            object-fit: contain;
         }
+
         .waifu-container img:active {
-            transform: scale(0.96);
+            transform: scale(0.95);
         }
-        /* Efeito de corações flutuantes ao tocar */
+
         .heart {
             position: absolute;
-            color: #ff6584;
-            font-size: 24px;
+            color: var(--accent-pink);
+            font-size: 26px;
             font-weight: bold;
-            animation: floatUp 1s ease-out forwards;
+            animation: floatUp 0.9s ease-out forwards;
             pointer-events: none;
+            z-index: 20;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
+
         @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-80px) scale(1.5); opacity: 0; }
+            0% { transform: translateY(0) scale(0.8); opacity: 1; }
+            100% { transform: translateY(-90px) scale(1.4); opacity: 0; }
         }
+
+        .footer-section {
+            width: calc(100% - 24px);
+            margin: 0 12px 8px 12px;
+            background: var(--card-bg);
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+        }
+
+        .energy-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            margin-bottom: 5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .energy-bar-container {
+            background: rgba(255, 255, 255, 0.08);
+            height: 6px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .energy-bar-fill {
+            background: linear-gradient(90deg, #10b981, #34d399);
+            width: 100%;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.15s linear;
+        }
+
         .nav-bar {
             display: flex;
             justify-content: space-around;
-            background: #110d26;
+            background: #0d0a1f;
             width: 100%;
-            padding: 12px 0;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px)) 0;
+            border-top: 1px solid var(--border-color);
         }
+
         .nav-item {
             text-align: center;
             font-size: 11px;
-            color: #9ca3af;
+            color: var(--text-muted);
+            font-weight: 500;
         }
+
         .nav-item.active {
-            color: #ec4899;
+            color: var(--accent-pink);
+        }
+
+        .nav-icon {
+            font-size: 16px;
+            margin-bottom: 2px;
+            display: block;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div id="user-info" style="font-size: 13px; color: #a78bfa;">A carregar...</div>
+        <div id="user-info" class="user-greeting">A carregar...</div>
         <div class="score-box" id="score">0</div>
-        <div style="font-size: 11px; color: #9ca3af;">WAIFU POINTS</div>
-        <div class="dialogue-box" id="dialogue">"Olá! Toca em mim para começarmos!"</div>
+        <div class="score-label">Waifu Points</div>
+        <div>
+            <div class="dialogue-box" id="dialogue">"Olá! Toca em mim para começarmos!"</div>
+        </div>
     </div>
 
     <div class="waifu-container" id="tap-area">
         <img src="waifu.png" alt="Waifu">
     </div>
 
-    <div style="width: 90%; margin-bottom: 10px;">
-        <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+    <div class="footer-section">
+        <div class="energy-info">
             <span>⚡ Energia</span>
             <span id="energy-text">100 / 100</span>
         </div>
-        <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
-            <div id="energy-bar" style="background: #10b981; width: 100%; height: 100%; transition: width 0.2s;"></div>
+        <div class="energy-bar-container">
+            <div id="energy-bar" class="energy-bar-fill"></div>
         </div>
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active">❤️<br>Waifu</div>
-        <div class="nav-item">⚡<br>Loja</div>
-        <div class="nav-item">🏆<br>Ranking</div>
-        <div class="nav-item">👥<br>Amigos</div>
+        <div class="nav-item active">
+            <span class="nav-icon">❤️</span>Waifu
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">⚡</span>Loja
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">🏆</span>Ranking
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">👥</span>Amigos
+        </div>
     </div>
 
     <script>
         let points = 0;
         let energy = 100;
-        let userName = "Utilizador";
+        let userName = "Miguel";
 
-        // Puxar o nome real do Telegram se disponível
+        // Integração oficial com o Telegram WebApp
         const tg = window.Telegram.WebApp;
         tg.expand();
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
             userName = tg.initDataUnsafe.user.first_name;
         }
+
         document.getElementById('user-info').innerText = `${userName} • Nível 1 • Waifu Master`;
 
-        // Lista de frases dinâmicas para a pessoa
+        // Banco de falas dinâmicas direcionadas ao utilizador
         const welcomePhrases = [
             `Que bom ver-te por aqui, ${userName}!`,
-            `Estava a saudades tua, ${userName}! Vamos farmar?`,
+            `Estava com saudades, ${userName}! Vamos farmar?`,
             `Força com isso, ${userName}! O topo é nosso!`,
             `Tens mãos rápidas hoje, ${userName}?`,
             `Pronta para te dar sorte hoje, ${userName}!`
@@ -155,42 +258,37 @@
             "Não pares agora, estamos quase no topo!"
         ];
 
-        // Escolher frase inicial aleatória
-        document.getElementById('dialogue').innerText = `"${welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]}"`;
+        const dialogueElem = document.getElementById('dialogue');
+        dialogueElem.innerText = `"${welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]}"`;
 
         const tapArea = document.getElementById('tap-area');
         const scoreDisplay = document.getElementById('score');
-        const dialogueDisplay = document.getElementById('dialogue');
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
 
-        // Sistema de cliques e interatividade
-        tapArea.addEventListener('click', (e) => {
+        // Controlo de cliques otendido para mobile e desktop
+        tapArea.addEventListener('pointerdown', (e) => {
             if (energy > 0) {
                 points += 1;
                 energy -= 1;
                 scoreDisplay.innerText = points;
                 
-                // Atualizar barra de energia
                 energyBar.style.width = energy + '%';
                 energyText.innerText = energy + ' / 100';
 
-                // Mudar frase a cada 5 cliques de forma divertida
                 if (points % 5 === 0) {
                     const randomClickPhrase = clickPhrases[Math.floor(Math.random() * clickPhrases.length)];
-                    dialogueDisplay.innerText = `"${randomClickPhrase}"`;
+                    dialogueElem.innerText = `"${randomClickPhrase}"`;
                 }
 
-                // Criar coração flutuante no local do toque
                 createHeart(e);
             }
         });
 
-        // Regenerar energia passivamente com o tempo
+        // Regeneração de energia passiva otimizada
         setInterval(() => {
             if (energy < 100) {
-                energy += 2;
-                if (energy > 100) energy = 100;
+                energy = Math.min(100, energy + 2);
                 energyBar.style.width = energy + '%';
                 energyText.innerText = energy + ' / 100';
             }
@@ -201,20 +299,18 @@
             heart.classList.add('heart');
             heart.innerHTML = '❤️';
             
-            // Obter coordenadas do clique relativas à área
             const rect = tapArea.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             
-            heart.style.left = x + 'px';
-            heart.style.top = y + 'px';
+            heart.style.left = (x - 12) + 'px';
+            heart.style.top = (y - 12) + 'px';
             
             tapArea.appendChild(heart);
             
-            // Remover elemento após a animação terminar
             setTimeout(() => {
                 heart.remove();
-            }, 1000);
+            }, 900);
         }
     </script>
 </body>
