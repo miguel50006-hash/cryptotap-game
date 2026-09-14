@@ -6,6 +6,7 @@
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://sad.adsgram.ai/js/adsgram.min.js"></script>
 
     <style>
         :root {
@@ -447,55 +448,33 @@
             }
         }
 
-        // Sistema dinâmico e resiliente para disparar o anúncio da Adsgram
-        function watchAdReward() {
-            dialogueElem.innerText = `⏳ "A carregar anúncio..."`;
+        // --- SISTEMA DE MONETIZAÇÃO RIGOROSO (ADSGRAM) ---
+        const adController = window.Adsgram ? window.Adsgram.init({ blockId: "int-47862" }) : null;
 
-            if (typeof window.Adsgram !== 'undefined') {
-                try {
-                    const adController = window.Adsgram.init({ blockId: "int-47862" });
-                    adController.show()
-                        .then(() => {
-                            grantAdReward();
-                        })
-                        .catch((err) => {
-                            console.error("Adsgram show error:", err);
-                            // Fallback automático para garantir que o jogador ganha pontos se o ad falhar
-                            grantAdReward();
-                        });
-                    return;
-                } catch (e) {
-                    console.error("Adsgram init error:", e);
-                }
+        async function watchAdReward() {
+            if (!adController) {
+                dialogueElem.innerText = `⚠️ "Rede de anúncios indisponível."`;
+                return;
             }
 
-            // Injeção dinâmica do SDK caso não estivesse carregado
-            const script = document.createElement('script');
-            script.src = "https://sad.adsgram.ai/js/adsgram.min.js";
-            script.onload = () => {
-                try {
-                    const adController = window.Adsgram.init({ blockId: "int-47862" });
-                    adController.show()
-                        .then(() => { grantAdReward(); })
-                        .catch(() => { grantAdReward(); });
-                } catch (ex) {
-                    grantAdReward();
-                }
-            };
-            script.onerror = () => {
-                // Se a rede bloquear o script por completo, dá o bónus para não bloquear a experiência
-                grantAdReward();
-            };
-            document.head.appendChild(script);
-        }
+            try {
+                dialogueElem.innerText = `⏳ "A carregar anúncio..."`;
+                // O utilizador tem de ver o anúncio obrigatoriamente para gerar receita e ganhar o bónus
+                const result = await adController.show();
+                
+                // Sucesso: o anúncio foi visto até ao fim
+                points += 150;
+                scoreDisplay.innerText = points;
+                dialogueElem.innerText = `🎁 "Parabéns! +150 Waifu Points adicionados!"`;
+                syncScoreToCloud();
+                scoreDisplay.classList.add('crit-pop');
+                setTimeout(() => scoreDisplay.classList.remove('crit-pop'), 300);
 
-        function grantAdReward() {
-            points += 150;
-            scoreDisplay.innerText = points;
-            dialogueElem.innerText = `🎁 "Parabéns! +150 Waifu Points adicionados!"`;
-            syncScoreToCloud();
-            scoreDisplay.classList.add('crit-pop');
-            setTimeout(() => scoreDisplay.classList.remove('crit-pop'), 300);
+            } catch (e) {
+                // Erro ou o utilizador fechou o anúncio antes do tempo: NÃO DÁ PONTOS (Protege a monetização)
+                console.error("Adsgram monetization event error:", e);
+                dialogueElem.innerText = `❌ "Tens de ver o anúncio até ao fim para ganhar o bónus!"`;
+            }
         }
 
         function switchTab(tab) {
