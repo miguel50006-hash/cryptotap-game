@@ -81,7 +81,6 @@
             max-width: 95%;
         }
 
-        /* Leitor de Música */
         .music-player {
             width: calc(100% - 24px);
             margin: 4px 12px 0 12px;
@@ -216,7 +215,6 @@
             display: block;
         }
 
-        /* Modal para os menus (Loja, Ranking, Amigos) */
         .modal {
             position: fixed;
             top: 0;
@@ -264,6 +262,9 @@
 </head>
 <body>
 
+    <!-- Elemento de Áudio Real -->
+    <audio id="bg-music" src="musica.mp3" loop></audio>
+
     <div class="header">
         <div id="user-info" class="user-greeting">A carregar...</div>
         <div class="score-box" id="score">0</div>
@@ -271,7 +272,6 @@
         <div class="dialogue-box" id="dialogue">"Olá! Toca em mim para começarmos!"</div>
     </div>
 
-    <!-- Leitor de Música Exclusivo -->
     <div class="music-player">
         <div class="music-info" id="music-title">🎵 Piseiro Cyber Viciante (OST)</div>
         <button class="music-btn" id="next-music-btn">🎶 Tocar</button>
@@ -292,21 +292,20 @@
     </div>
 
     <div class="nav-bar">
-        <div class="nav-item active" onclick="switchTab('waifu')">
+        <div class="nav-item active" id="nav-waifu" onclick="switchTab('waifu')">
             <span class="nav-icon">❤️</span>Waifu
         </div>
-        <div class="nav-item" onclick="switchTab('loja')">
+        <div class="nav-item" id="nav-loja" onclick="switchTab('loja')">
             <span class="nav-icon">⚡</span>Loja
         </div>
-        <div class="nav-item" onclick="switchTab('ranking')">
+        <div class="nav-item" id="nav-ranking" onclick="switchTab('ranking')">
             <span class="nav-icon">🏆</span>Ranking
         </div>
-        <div class="nav-item" onclick="switchTab('amigos')">
+        <div class="nav-item" id="nav-amigos" onclick="switchTab('amigos')">
             <span class="nav-icon">👥</span>Amigos
         </div>
     </div>
 
-    <!-- Janela Modal para os Botões -->
     <div class="modal" id="game-modal">
         <div class="modal-content">
             <h3 id="modal-title" style="margin-top: 0; color: #d8b4fe;">Título</h3>
@@ -321,7 +320,6 @@
         let userLevel = 1;
         let userName = "Miguel";
 
-        // Integração Telegram
         const tg = window.Telegram.WebApp;
         tg.expand();
         if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
@@ -338,23 +336,26 @@
         }
         updateUserInfo();
 
-        // Sistema de Áudio / Música Exclusiva
-        let isMusicPlaying = false;
+        // Controlo do Áudio Real
+        const bgMusic = document.getElementById('bg-music');
         const musicTitleElem = document.getElementById('music-title');
         const musicBtn = document.getElementById('next-music-btn');
 
         musicBtn.addEventListener('click', () => {
-            isMusicPlaying = !isMusicPlaying;
-            if (isMusicPlaying) {
-                musicTitleElem.innerText = "🎵 A tocar: Piseiro Cyber (Loop)";
-                musicBtn.innerText = "⏸ Pausar";
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    musicTitleElem.innerText = "🎵 A tocar: Piseiro Cyber (Loop)";
+                    musicBtn.innerText = "⏸ Pausar";
+                }).catch(e => {
+                    console.log("Erro ao reproduzir áudio:", e);
+                });
             } else {
+                bgMusic.pause();
                 musicTitleElem.innerText = "🎵 Piseiro Cyber Viciante (OST)";
                 musicBtn.innerText = "🎶 Tocar";
             }
         });
 
-        // Banco de Falas Dinâmicas (Evoluem com o Nível)
         const welcomePhrases = [
             `Que bom ver-te por aqui, ${userName}!`,
             `Estava com saudades, ${userName}! Vamos farmar?`,
@@ -379,7 +380,6 @@
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
 
-        // Mecânica de cliques com progressão de nível
         tapArea.addEventListener('pointerdown', (e) => {
             if (energy > 0) {
                 points += 1;
@@ -389,7 +389,6 @@
                 energyBar.style.width = energy + '%';
                 energyText.innerText = energy + ' / 100';
 
-                // Subir de nível a cada 50 pontos (Genética de Progressão)
                 let newLevel = Math.floor(points / 50) + 1;
                 if (newLevel > userLevel) {
                     userLevel = newLevel;
@@ -404,7 +403,6 @@
             }
         });
 
-        // Regeneração de energia passiva
         setInterval(() => {
             if (energy < 100) {
                 energy = Math.min(100, energy + 2);
@@ -432,32 +430,46 @@
             }, 800);
         }
 
-        // Navegação Inferior Funcional (Modais)
         function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event.currentTarget.classList.add('active');
 
             const modal = document.getElementById('game-modal');
             const modalTitle = document.getElementById('modal-title');
             const modalText = document.getElementById('modal-text');
 
-            if (tab === 'loja') {
+            if (tab === 'waifu') {
+                document.getElementById('nav-waifu').classList.add('active');
+                modal.classList.remove('open');
+            } 
+            else if (tab === 'loja') {
+                document.getElementById('nav-loja').classList.add('active');
                 modalTitle.innerText = "⚡ Loja de Bónus";
                 modalText.innerText = "Em breve poderás gastar os teus Waifu Points em melhorias de energia e novas roupas!";
                 modal.classList.add('open');
-            } else if (tab === 'ranking') {
+            } 
+            else if (tab === 'ranking') {
+                document.getElementById('nav-ranking').classList.add('active');
                 modalTitle.innerText = "🏆 Ranking Global";
                 modalText.innerText = `Estás atualmente em 1º lugar na tabela com ${points} pontos e no Nível ${userLevel}. Força, ${userName}!`;
                 modal.classList.add('open');
-            } else if (tab === 'amigos') {
-                modalTitle.innerText = "👥 Convidar Amigos";
-                modalText.innerText = "Partilha o teu bot do Telegram com os amigos para ganharem bónus de energia em conjunto!";
-                modal.classList.add('open');
+            } 
+            else if (tab === 'amigos') {
+                document.getElementById('nav-amigos').classList.add('active');
+                const botUrl = "https://t.me/MeuJogoCrypto2026_bot";
+                const shareText = encodeURIComponent(`Junta-te a mim no Crypto Tap Game e ajuda-nos a subir no ranking! 🚀`);
+                
+                if (tg && tg.openTelegramLink) {
+                    tg.openTelegramLink(`https://t.me/share/url?url=${botUrl}&text=${shareText}`);
+                } else {
+                    window.open(`https://t.me/share/url?url=${botUrl}&text=${shareText}`, '_blank');
+                }
             }
         }
 
         function closeModal() {
             document.getElementById('game-modal').classList.remove('open');
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            document.getElementById('nav-waifu').classList.add('active');
         }
     </script>
 </body>
