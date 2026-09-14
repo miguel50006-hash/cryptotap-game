@@ -12,6 +12,7 @@
             --border-color: rgba(255, 255, 255, 0.08);
             --accent-purple: #a855f7;
             --accent-pink: #ec4899;
+            --accent-gold: #fbbf24;
             --text-main: #ffffff;
             --text-muted: #9ca3af;
         }
@@ -60,6 +61,12 @@
             line-height: 1.1;
             margin: 2px 0;
             text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            transition: transform 0.1s ease;
+        }
+
+        .score-box.crit-pop {
+            transform: scale(1.15);
+            color: var(--accent-gold);
         }
 
         .score-label {
@@ -79,37 +86,7 @@
             margin: 4px auto 0 auto;
             display: inline-block;
             max-width: 95%;
-        }
-
-        .music-player {
-            width: calc(100% - 24px);
-            margin: 4px 12px 0 12px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 6px 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .music-info {
-            font-size: 11px;
-            color: #c084fc;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .music-btn {
-            background: rgba(168, 85, 247, 0.2);
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            color: white;
-            padding: 4px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: 600;
+            transition: all 0.2s ease;
         }
 
         .waifu-container {
@@ -138,19 +115,28 @@
             transform: scale(0.95);
         }
 
-        .heart {
+        .floating-text {
             position: absolute;
-            color: var(--accent-pink);
-            font-size: 24px;
-            font-weight: bold;
+            font-weight: 900;
             animation: floatUp 0.8s ease-out forwards;
             pointer-events: none;
             z-index: 20;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        }
+
+        .heart {
+            color: var(--accent-pink);
+            font-size: 24px;
+        }
+
+        .crit-text {
+            color: var(--accent-gold);
+            font-size: 28px;
         }
 
         @keyframes floatUp {
             0% { transform: translateY(0) scale(0.8); opacity: 1; }
-            100% { transform: translateY(-80px) scale(1.3); opacity: 0; }
+            100% { transform: translateY(-85px) scale(1.4); opacity: 0; }
         }
 
         .footer-section {
@@ -215,13 +201,14 @@
             display: block;
         }
 
+        /* Janelas Modais */
         .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.75);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -240,41 +227,62 @@
         .modal-content {
             background: #1a153b;
             border: 1px solid rgba(168, 85, 247, 0.4);
-            width: 85%;
-            max-width: 320px;
+            width: 88%;
+            max-width: 330px;
             padding: 20px;
             border-radius: 20px;
             text-align: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .shop-btn {
+            background: var(--accent-purple);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .shop-btn:active {
+            transform: scale(0.95);
         }
 
         .modal-close {
             margin-top: 15px;
-            background: var(--accent-purple);
+            background: rgba(255, 255, 255, 0.1);
             color: white;
             border: none;
             padding: 8px 20px;
             border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
+            width: 100%;
         }
     </style>
 </head>
 <body>
-
-    <!-- Elemento de Áudio Real -->
-    <audio id="bg-music" src="musica.mp3" loop></audio>
 
     <div class="header">
         <div id="user-info" class="user-greeting">A carregar...</div>
         <div class="score-box" id="score">0</div>
         <div class="score-label">Waifu Points</div>
         <div class="dialogue-box" id="dialogue">"Olá! Toca em mim para começarmos!"</div>
-    </div>
-
-    <div class="music-player">
-        <div class="music-info" id="music-title">🎵 Piseiro Cyber Viciante (OST)</div>
-        <button class="music-btn" id="next-music-btn">🎶 Tocar</button>
     </div>
 
     <div class="waifu-container" id="tap-area">
@@ -299,26 +307,32 @@
             <span class="nav-icon">⚡</span>Loja
         </div>
         <div class="nav-item" id="nav-ranking" onclick="switchTab('ranking')">
-            <span class="nav-icon">🏆</span>Ranking
+            <span class="nav-icon">🏆</span>Missões
         </div>
         <div class="nav-item" id="nav-amigos" onclick="switchTab('amigos')">
             <span class="nav-icon">👥</span>Amigos
         </div>
     </div>
 
+    <!-- Janela Modal Dinâmica -->
     <div class="modal" id="game-modal">
-        <div class="modal-content">
-            <h3 id="modal-title" style="margin-top: 0; color: #d8b4fe;">Título</h3>
-            <p id="modal-text" style="font-size: 13px; color: #cbd5e1; line-height: 1.4;">Mensagem</p>
-            <button class="modal-close" onclick="closeModal()">Fechar</button>
+        <div class="modal-content" id="modal-body-content">
+            <!-- Conteúdo injetado via JS -->
         </div>
     </div>
 
     <script>
         let points = 0;
         let energy = 100;
+        let maxEnergy = 100;
         let userLevel = 1;
         let userName = "Miguel";
+        let tapPower = 1; // Potência de clique (Multitap)
+        let energyRegenRate = 2; // Regeneração por segundo
+
+        // Controlo de Missões
+        let missionClicksCount = 0;
+        let missionClaimed = false;
 
         const tg = window.Telegram.WebApp;
         tg.expand();
@@ -336,26 +350,8 @@
         }
         updateUserInfo();
 
-        // Controlo do Áudio Real
-        const bgMusic = document.getElementById('bg-music');
-        const musicTitleElem = document.getElementById('music-title');
-        const musicBtn = document.getElementById('next-music-btn');
-
-        musicBtn.addEventListener('click', () => {
-            if (bgMusic.paused) {
-                bgMusic.play().then(() => {
-                    musicTitleElem.innerText = "🎵 A tocar: Piseiro Cyber (Loop)";
-                    musicBtn.innerText = "⏸ Pausar";
-                }).catch(e => {
-                    console.log("Erro ao reproduzir áudio:", e);
-                });
-            } else {
-                bgMusic.pause();
-                musicTitleElem.innerText = "🎵 Piseiro Cyber Viciante (OST)";
-                musicBtn.innerText = "🎶 Tocar";
-            }
-        });
-
+        // Humor dinâmico da Waifu baseado na energia e estado
+        const dialogueElem = document.getElementById('dialogue');
         const welcomePhrases = [
             `Que bom ver-te por aqui, ${userName}!`,
             `Estava com saudades, ${userName}! Vamos farmar?`,
@@ -363,79 +359,98 @@
             `Tens mãos rápidas hoje, ${userName}?`,
             `Pronta para te dar sorte hoje, ${userName}!`
         ];
+        dialogueElem.innerText = `"${welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]}"`;
 
         const clickPhrases = [
             "Isso mesmo, continua a focar!",
             "Adoro quando me dás atenção!",
-            "Mais um ponto para a nossa conta!",
+            "Mais pontos para a nossa conta!",
             "Estás a ir com excelente ritmo!",
-            "Não pares agora, estamos quase no topo!"
+            "Uau, que velocidade incrível!"
         ];
-
-        const dialogueElem = document.getElementById('dialogue');
-        dialogueElem.innerText = `"${welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]}"`;
 
         const tapArea = document.getElementById('tap-area');
         const scoreDisplay = document.getElementById('score');
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
 
+        // Mecânica Principal de Cliques com Crit (15% de chance) e Multitap
         tapArea.addEventListener('pointerdown', (e) => {
             if (energy > 0) {
-                points += 1;
-                energy -= 1;
+                let earned = tapPower;
+                let isCrit = Math.random() < 0.15; // 15% de chance de crítico
+
+                if (isCrit) {
+                    earned *= 3; // Crítico triplica os pontos do toque
+                    scoreDisplay.classList.add('crit-pop');
+                    setTimeout(() => scoreDisplay.classList.remove('crit-pop'), 150);
+                    dialogueElem.innerText = `🔥 "CRÍTICO! Grande foco, ${userName}!"`;
+                }
+
+                points += earned;
+                energy = Math.max(0, energy - 1);
                 scoreDisplay.innerText = points;
                 
-                energyBar.style.width = energy + '%';
-                energyText.innerText = energy + ' / 100';
+                energyBar.style.width = (energy / maxEnergy) * 100 + '%';
+                energyText.innerText = `${energy} / ${maxEnergy}`;
 
-                let newLevel = Math.floor(points / 50) + 1;
+                // Progresso da Missão de Cliques
+                if (!missionClaimed) {
+                    missionClicksCount += 1;
+                }
+
+                // Progressão de Nível
+                let newLevel = Math.floor(points / 100) + 1;
                 if (newLevel > userLevel) {
                     userLevel = newLevel;
-                    dialogueElem.innerText = `🎉 "Subimos para o Nível ${userLevel}! És incrível, ${userName}!"`;
-                } else if (points % 5 === 0) {
-                    const randomClickPhrase = clickPhrases[Math.floor(Math.random() * clickPhrases.length)];
-                    dialogueElem.innerText = `"${randomClickPhrase}"`;
+                    dialogueElem.innerText = `🎉 "Subimos para o Nível ${userLevel}! És imparável, ${userName}!"`;
+                } else if (!isCrit && points % 6 === 0) {
+                    dialogueElem.innerText = `"${clickPhrases[Math.floor(Math.random() * clickPhrases.length)]}"`;
                 }
 
                 updateUserInfo();
-                createHeart(e);
+                createFloatingEffect(e, isCrit ? `+${earned} CRIT!` : '❤️', isCrit);
+            } else {
+                dialogueElem.innerText = `💤 "Estou sem energia... Deixa-me recuperar!"`;
             }
         });
 
+        // Regeneração passiva de energia
         setInterval(() => {
-            if (energy < 100) {
-                energy = Math.min(100, energy + 2);
-                energyBar.style.width = energy + '%';
-                energyText.innerText = energy + ' / 100';
+            if (energy < maxEnergy) {
+                energy = Math.min(maxEnergy, energy + energyRegenRate);
+                energyBar.style.width = (energy / maxEnergy) * 100 + '%';
+                energyText.innerText = `${energy} / ${maxEnergy}`;
             }
         }, 1000);
 
-        function createHeart(event) {
-            const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.innerHTML = '❤️';
+        function createFloatingEffect(event, text, isCrit) {
+            const el = document.createElement('div');
+            el.classList.add('floating-text');
+            if (isCrit) {
+                el.classList.add('crit-text');
+            } else {
+                el.classList.add('heart');
+            }
+            el.innerHTML = text;
             
             const rect = tapArea.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             
-            heart.style.left = (x - 12) + 'px';
-            heart.style.top = (y - 12) + 'px';
+            el.style.left = (x - 15) + 'px';
+            el.style.top = (y - 15) + 'px';
             
-            tapArea.appendChild(heart);
-            
-            setTimeout(() => {
-                heart.remove();
-            }, 800);
+            tapArea.appendChild(el);
+            setTimeout(() => el.remove(), 800);
         }
 
+        // Navegação e Gestão de Lojas / Missões
         function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
 
             const modal = document.getElementById('game-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const modalText = document.getElementById('modal-text');
+            const modalBody = document.getElementById('modal-body-content');
 
             if (tab === 'waifu') {
                 document.getElementById('nav-waifu').classList.add('active');
@@ -443,14 +458,12 @@
             } 
             else if (tab === 'loja') {
                 document.getElementById('nav-loja').classList.add('active');
-                modalTitle.innerText = "⚡ Loja de Bónus";
-                modalText.innerText = "Em breve poderás gastar os teus Waifu Points em melhorias de energia e novas roupas!";
+                renderShopModal(modalBody);
                 modal.classList.add('open');
             } 
             else if (tab === 'ranking') {
                 document.getElementById('nav-ranking').classList.add('active');
-                modalTitle.innerText = "🏆 Ranking Global";
-                modalText.innerText = `Estás atualmente em 1º lugar na tabela com ${points} pontos e no Nível ${userLevel}. Força, ${userName}!`;
+                renderMissionsModal(modalBody);
                 modal.classList.add('open');
             } 
             else if (tab === 'amigos') {
@@ -463,6 +476,85 @@
                 } else {
                     window.open(`https://t.me/share/url?url=${botUrl}&text=${shareText}`, '_blank');
                 }
+            }
+        }
+
+        // Loja de Upgrades Reais
+        function renderShopModal(container) {
+            let multitapCost = 50 * tapPower;
+            let energyCost = 80;
+
+            container.innerHTML = `
+                <h3 style="margin-top: 0; color: #d8b4fe;">⚡ Loja de Melhorias</h3>
+                <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 15px;">Gasta os teus pontos para evoluir o teu poder!</p>
+                
+                <div class="shop-item">
+                    <div style="text-align: left; font-size: 12px;">
+                        <strong>Multitap (+1 por toque)</strong><br>
+                        <span style="color: #a78bfa;">Atual: Nível ${tapPower}</span>
+                    </div>
+                    <button class="shop-btn" onclick="buyUpgrade('multitap', ${multitapCost})">${multitapCost} WP</button>
+                </div>
+
+                <div class="shop-item">
+                    <div style="text-align: left; font-size: 12px;">
+                        <strong>Max Energia (+50 limite)</strong><br>
+                        <span style="color: #a78bfa;">Atual: ${maxEnergy}</span>
+                    </div>
+                    <button class="shop-btn" onclick="buyUpgrade('energy', ${energyCost})">${energyCost} WP</button>
+                </div>
+
+                <button class="modal-close" onclick="closeModal()">Fechar</button>
+            `;
+        }
+
+        function buyUpgrade(type, cost) {
+            if (points >= cost) {
+                points -= cost;
+                scoreDisplay.innerText = points;
+
+                if (type === 'multitap') {
+                    tapPower += 1;
+                } else if (type === 'energy') {
+                    maxEnergy += 50;
+                    energy = maxEnergy;
+                    energyBar.style.width = '100%';
+                    energyText.innerText = `${energy} / ${maxEnergy}`;
+                }
+                renderShopModal(document.getElementById('modal-body-content'));
+            } else {
+                alert("Não tens pontos suficientes!");
+            }
+        }
+
+        // Painel de Missões Diárias
+        function renderMissionsModal(container) {
+            let progressText = missionClaimed ? "Concluída (100%)" : `${Math.min(missionClicksCount, 50)} / 50 Cliques`;
+            let btnState = missionClaimed ? 'disabled style="background: gray;"' : '';
+            let btnText = missionClaimed ? 'Resgatado' : (missionClicksCount >= 50 ? 'Resgatar +100 WP' : 'Em progresso');
+
+            container.innerHTML = `
+                <h3 style="margin-top: 0; color: #d8b4fe;">🏆 Missões Diárias</h3>
+                <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 15px;">Cumpre objetivos e ganha bónus diretos!</p>
+                
+                <div class="shop-item">
+                    <div style="text-align: left; font-size: 12px;">
+                        <strong>Dá 50 cliques na Waifu</strong><br>
+                        <span style="color: #a78bfa;">${progressText}</span>
+                    </div>
+                    <button class="shop-btn" ${btnState} onclick="claimMission()">${btnText}</button>
+                </div>
+
+                <button class="modal-close" onclick="closeModal()">Fechar</button>
+            `;
+        }
+
+        function claimMission() {
+            if (!missionClaimed && missionClicksCount >= 50) {
+                missionClaimed = true;
+                points += 100;
+                scoreDisplay.innerText = points;
+                renderMissionsModal(document.getElementById('modal-body-content'));
             }
         }
 
