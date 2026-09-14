@@ -47,7 +47,30 @@
             text-align: center;
             border: 1px solid var(--border-color);
             backdrop-filter: blur(10px);
+            position: relative;
         }
+
+        /* Botão flutuante de Anúncio / Bónus no Header */
+        .ad-bonus-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #fbbf24, #d97706);
+            border: none;
+            border-radius: 10px;
+            color: #120f29;
+            font-weight: 800;
+            font-size: 11px;
+            padding: 6px 10px;
+            cursor: pointer;
+            box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: transform 0.1s ease;
+        }
+        .ad-bonus-btn:active { transform: translateY(-50%) scale(0.95); }
 
         .user-greeting {
             font-size: 11px;
@@ -86,10 +109,10 @@
             color: #f3e8ff;
             margin: 4px auto 0 auto;
             display: inline-block;
-            max-width: 95%;
+            max-width: 90%;
         }
 
-        /* Área da Waifu sem caixas/quadrados, com brilho Neon direto na imagem */
+        /* Área da Waifu com Neon limpo e sem molduras quadradas */
         .waifu-container {
             position: relative;
             cursor: pointer;
@@ -106,8 +129,7 @@
             width: auto;
             max-width: 85vw;
             border-radius: 12px;
-            /* Efeito Neon Roxo brilhante à volta da imagem sem moldura sólida */
-            filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.7)) drop-shadow(0 0 35px rgba(236, 72, 153, 0.4));
+            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.75)) drop-shadow(0 0 40px rgba(236, 72, 153, 0.45));
             transition: transform 0.08s ease, filter 0.1s ease;
             object-fit: contain;
         }
@@ -117,7 +139,7 @@
             filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.9));
         }
 
-        /* Efeito de estrelas a subir ao clicar */
+        /* Efeito de Estrelas nos Cliques */
         .floating-star {
             position: absolute;
             font-size: 24px;
@@ -184,6 +206,10 @@
             cursor: pointer;
             flex: 1;
             transition: color 0.2s;
+            background: none;
+            border: none;
+            outline: none;
+            font-family: inherit;
         }
 
         .nav-item.active {
@@ -247,9 +273,11 @@
         <div class="score-box" id="score">0</div>
         <div class="score-label">Waifu Points (Cloud Sync)</div>
         <div class="dialogue-box" id="dialogue">"A sincronizar com os servidores..."</div>
+        <!-- Botão de Anúncio / Recompensa Diária -->
+        <button class="ad-bonus-btn" onclick="watchAdReward()">🎁 Bónus</button>
     </div>
 
-    <!-- Imagem sem caixas, com neon à volta -->
+    <!-- Imagem da Waifu com Neon -->
     <div class="waifu-container" id="tap-area">
         <img src="waifu.png" alt="Waifu">
     </div>
@@ -264,11 +292,20 @@
         </div>
     </div>
 
+    <!-- Barra de Navegação com o botão Waifu a funcionar perfeitamente -->
     <div class="nav-bar">
-        <div class="nav-item active" id="nav-waifu" onclick="switchTab('waifu')"><span class="nav-icon">❤️</span>Waifu</div>
-        <div class="nav-item" id="nav-loja" onclick="switchTab('loja')"><span class="nav-icon">⚡</span>Loja</div>
-        <div class="nav-item" id="nav-ranking" onclick="switchTab('ranking')"><span class="nav-icon">🏆</span>Ranking</div>
-        <div class="nav-item" id="nav-amigos" onclick="switchTab('amigos')"><span class="nav-icon">👥</span>Amigos</div>
+        <button class="nav-item active" id="nav-waifu" onclick="switchTab('waifu')">
+            <span class="nav-icon">❤️</span>Waifu
+        </button>
+        <button class="nav-item" id="nav-loja" onclick="switchTab('loja')">
+            <span class="nav-icon">⚡</span>Loja
+        </button>
+        <button class="nav-item" id="nav-ranking" onclick="switchTab('ranking')">
+            <span class="nav-icon">🏆</span>Ranking
+        </button>
+        <button class="nav-item" id="nav-amigos" onclick="switchTab('amigos')">
+            <span class="nav-icon">👥</span>Amigos
+        </button>
     </div>
 
     <div class="modal" id="game-modal">
@@ -349,7 +386,6 @@
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
 
-        // Evento de clique com chuva de estrelas
         tapArea.addEventListener('pointerdown', (e) => {
             if (energy > 0) {
                 let earned = tapPower;
@@ -379,8 +415,6 @@
 
                 updateUserInfo();
                 syncScoreToCloud();
-                
-                // Criação de múltiplas estrelas a cada clique
                 createStarEffect(e);
             } else {
                 dialogueElem.innerText = `💤 "A energia esgotou-se... Calma!"`;
@@ -400,13 +434,11 @@
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
 
-            // Gera entre 2 a 3 estrelas por toque para um efeito rico e profissional
             for (let i = 0; i < 3; i++) {
                 const star = document.createElement('div');
                 star.classList.add('floating-star');
                 star.innerHTML = i === 0 ? '⭐' : (i === 1 ? '✨' : '🌟');
                 
-                // Pequena variação aleatória na posição de saída
                 const offsetX = (Math.random() - 0.5) * 50;
                 const offsetY = (Math.random() - 0.5) * 30;
                 
@@ -418,6 +450,19 @@
             }
         }
 
+        // Função de Recompensa por Anúncio simulada com bónus imediato de pontos
+        function watchAdReward() {
+            points += 100;
+            scoreDisplay.innerText = points;
+            dialogueElem.innerText = `🎁 "Anúncio visto! +100 Waifu Points!"`;
+            syncScoreToCloud();
+            
+            // Efeito visual de alerta no topo
+            scoreDisplay.classList.add('crit-pop');
+            setTimeout(() => scoreDisplay.classList.remove('crit-pop'), 300);
+        }
+
+        // Navegação corrigida (o botão Waifu fecha modais e foca no jogo)
         function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
             const modal = document.getElementById('game-modal');
