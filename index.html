@@ -6,7 +6,8 @@
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://sad.adsgram.ai/js/adsgram.min.js"></script>
+    <!-- Adsgram SDK com async para garantir carregamento -->
+    <script src="https://sad.adsgram.ai/js/adsgram.min.js" async></script>
 
     <style>
         :root {
@@ -448,23 +449,23 @@
             }
         }
 
-        // Inicialização do SDK da Adsgram com o blockId real
-        const adController = window.Adsgram ? window.Adsgram.init({ blockId: "int-47862" }) : null;
-
+        // Função segura para inicializar e chamar o anúncio da Adsgram
         async function watchAdReward() {
-            if (adController) {
-                try {
-                    dialogueElem.innerText = `⏳ "A carregar anúncio..."`;
-                    await adController.show();
-                    // Se o anúncio reproduzir e for concluído com sucesso:
-                    grantAdReward();
-                } catch (e) {
-                    // Mostra o motivo exato caso a Adsgram recuse ou falhe
-                    console.error("Adsgram error:", e);
-                    dialogueElem.innerText = `⚠️ "Anúncio indisponível de momento."`;
-                }
-            } else {
-                dialogueElem.innerText = `⚠️ "SDK da Adsgram não carregado."`;
+            if (typeof window.Adsgram === 'undefined') {
+                dialogueElem.innerText = `⚠️ "A carregar rede de anúncios... Tenta de novo."`;
+                return;
+            }
+
+            try {
+                dialogueElem.innerText = `⏳ "A preparar anúncio..."`;
+                const adController = window.Adsgram.init({ blockId: "int-47862" });
+                await adController.show();
+                
+                // Se o utilizador vir o anúncio até ao fim:
+                grantAdReward();
+            } catch (e) {
+                console.error("Adsgram error:", e);
+                dialogueElem.innerText = `⚠️ "Nenhum anúncio disponível de momento."`;
             }
         }
 
