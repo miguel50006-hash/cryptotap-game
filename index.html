@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Crypto Tap Game</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Supabase JS Client para gercar a nuvem e o ranking -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg-color: #120f29;
@@ -201,7 +203,6 @@
             display: block;
         }
 
-        /* Janelas Modais */
         .modal {
             position: fixed;
             top: 0;
@@ -259,8 +260,15 @@
             cursor: pointer;
         }
 
-        .shop-btn:active {
-            transform: scale(0.95);
+        .ranking-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
         }
 
         .modal-close {
@@ -279,10 +287,10 @@
 <body>
 
     <div class="header">
-        <div id="user-info" class="user-greeting">A carregar...</div>
+        <div id="user-info" class="user-greeting">A carregar nuvem...</div>
         <div class="score-box" id="score">0</div>
-        <div class="score-label">Waifu Points</div>
-        <div class="dialogue-box" id="dialogue">"Olá! Toca em mim para começarmos!"</div>
+        <div class="score-label">Waifu Points (Cloud Sync)</div>
+        <div class="dialogue-box" id="dialogue">"A sincronizar com os servidores..."</div>
     </div>
 
     <div class="waifu-container" id="tap-area">
@@ -307,37 +315,74 @@
             <span class="nav-icon">⚡</span>Loja
         </div>
         <div class="nav-item" id="nav-ranking" onclick="switchTab('ranking')">
-            <span class="nav-icon">🏆</span>Missões
+            <span class="nav-icon">🏆</span>Ranking
         </div>
         <div class="nav-item" id="nav-amigos" onclick="switchTab('amigos')">
             <span class="nav-icon">👥</span>Amigos
         </div>
     </div>
 
-    <!-- Janela Modal Dinâmica -->
     <div class="modal" id="game-modal">
-        <div class="modal-content" id="modal-body-content">
-            <!-- Conteúdo injetado via JS -->
-        </div>
+        <div class="modal-content" id="modal-body-content"></div>
     </div>
 
     <script>
+        // --- CONFIGURAÇÃO DA NUVEM (SUPABASE) ---
+        // Substitui pelas tuas chaves públicas reais do teu projeto Supabase
+        const SUPABASE_URL = 'https://O_TEU_PROJETO.supabase.co';
+        const SUPABASE_KEY = 'A_TUA_CHAVE_ANON_KEY';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         let points = 0;
         let energy = 100;
         let maxEnergy = 100;
         let userLevel = 1;
+        let userId = "user_" + Math.floor(Math.random() * 100000); // ID temporário caso abra fora do Telegram
         let userName = "Miguel";
-        let tapPower = 1; // Potência de clique (Multitap)
-        let energyRegenRate = 2; // Regeneração por segundo
-
-        // Controlo de Missões
-        let missionClicksCount = 0;
-        let missionClaimed = false;
+        let tapPower = 1;
+        let energyRegenRate = 2;
 
         const tg = window.Telegram.WebApp;
         tg.expand();
-        if (tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) {
-            userName = tg.initDataUnsafe.user.first_name;
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            if (tg.initDataUnsafe.user.id) userId = String(tg.initDataUnsafe.user.id);
+            if (tg.initDataUnsafe.user.first_name) userName = tg.initDataUnsafe.user.first_name;
+        }
+
+        // Carregar dados iniciais do jogador a partir da Nuvem
+        async function loadPlayerData() {
+            const { data, error } = await supabaseClient
+                .from('players')
+                .select('*')
+                .eq('telegram_id', userId)
+                .single();
+
+            if (data) {
+                points = data.score || 0;
+                userLevel = Math.floor(points / 100) + 1;
+                document.getElementById('score').innerText = points;
+            } else {
+                // Se o jogador não existir na base de dados, cria o registo inicial
+                await supabaseClient.from('players').insert([
+                    { telegram_id: userId, username: userName, score: 0 }
+                ]);
+            }
+            updateUserInfo();
+            dialogueElem.innerText = `"Olá de novo, ${userName}! Vamos ao topo!"`;
+        }
+        loadPlayerData();
+
+        // Sincronizar pontos na nuvem (com salvamento otimizado)
+        let saveTimeout = null;
+        function syncScoreToCloud() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(async () => {
+                await supabaseClient
+                    .from('players')
+                    .update({ score: points, username: userName })
+                    .eq('telegram_id', userId);
+            }, 1000); // Guarda na nuvem 1 segundo após o último clique para poupar largura de banda
         }
 
         function updateUserInfo() {
@@ -348,19 +393,8 @@
             
             document.getElementById('user-info').innerText = `${userName} • Nível ${userLevel} • ${titleName}`;
         }
-        updateUserInfo();
 
-        // Humor dinâmico da Waifu baseado na energia e estado
         const dialogueElem = document.getElementById('dialogue');
-        const welcomePhrases = [
-            `Que bom ver-te por aqui, ${userName}!`,
-            `Estava com saudades, ${userName}! Vamos farmar?`,
-            `Força com isso, ${userName}! O topo é nosso!`,
-            `Tens mãos rápidas hoje, ${userName}?`,
-            `Pronta para te dar sorte hoje, ${userName}!`
-        ];
-        dialogueElem.innerText = `"${welcomePhrases[Math.floor(Math.random() * welcomePhrases.length)]}"`;
-
         const clickPhrases = [
             "Isso mesmo, continua a focar!",
             "Adoro quando me dás atenção!",
@@ -374,17 +408,16 @@
         const energyBar = document.getElementById('energy-bar');
         const energyText = document.getElementById('energy-text');
 
-        // Mecânica Principal de Cliques com Crit (15% de chance) e Multitap
         tapArea.addEventListener('pointerdown', (e) => {
             if (energy > 0) {
                 let earned = tapPower;
-                let isCrit = Math.random() < 0.15; // 15% de chance de crítico
+                let isCrit = Math.random() < 0.15;
 
                 if (isCrit) {
-                    earned *= 3; // Crítico triplica os pontos do toque
+                    earned *= 3;
                     scoreDisplay.classList.add('crit-pop');
                     setTimeout(() => scoreDisplay.classList.remove('crit-pop'), 150);
-                    dialogueElem.innerText = `🔥 "CRÍTICO! Grande foco, ${userName}!"`;
+                    dialogueElem.innerText = `🔥 "CRÍTICO NA NUVEM! Força, ${userName}!"`;
                 }
 
                 points += earned;
@@ -394,28 +427,22 @@
                 energyBar.style.width = (energy / maxEnergy) * 100 + '%';
                 energyText.innerText = `${energy} / ${maxEnergy}`;
 
-                // Progresso da Missão de Cliques
-                if (!missionClaimed) {
-                    missionClicksCount += 1;
-                }
-
-                // Progressão de Nível
                 let newLevel = Math.floor(points / 100) + 1;
                 if (newLevel > userLevel) {
                     userLevel = newLevel;
-                    dialogueElem.innerText = `🎉 "Subimos para o Nível ${userLevel}! És imparável, ${userName}!"`;
+                    dialogueElem.innerText = `🎉 "Nível ${userLevel} atingido na nuvem!"`;
                 } else if (!isCrit && points % 6 === 0) {
                     dialogueElem.innerText = `"${clickPhrases[Math.floor(Math.random() * clickPhrases.length)]}"`;
                 }
 
                 updateUserInfo();
+                syncScoreToCloud();
                 createFloatingEffect(e, isCrit ? `+${earned} CRIT!` : '❤️', isCrit);
             } else {
-                dialogueElem.innerText = `💤 "Estou sem energia... Deixa-me recuperar!"`;
+                dialogueElem.innerText = `💤 "A energia esgotou-se... Calma!"`;
             }
         });
 
-        // Regeneração passiva de energia
         setInterval(() => {
             if (energy < maxEnergy) {
                 energy = Math.min(maxEnergy, energy + energyRegenRate);
@@ -427,11 +454,7 @@
         function createFloatingEffect(event, text, isCrit) {
             const el = document.createElement('div');
             el.classList.add('floating-text');
-            if (isCrit) {
-                el.classList.add('crit-text');
-            } else {
-                el.classList.add('heart');
-            }
+            el.classList.add(isCrit ? 'crit-text' : 'heart');
             el.innerHTML = text;
             
             const rect = tapArea.getBoundingClientRect();
@@ -445,7 +468,6 @@
             setTimeout(() => el.remove(), 800);
         }
 
-        // Navegação e Gestão de Lojas / Missões
         function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
 
@@ -463,13 +485,13 @@
             } 
             else if (tab === 'ranking') {
                 document.getElementById('nav-ranking').classList.add('active');
-                renderMissionsModal(modalBody);
+                renderRankingModal(modalBody);
                 modal.classList.add('open');
             } 
             else if (tab === 'amigos') {
                 document.getElementById('nav-amigos').classList.add('active');
                 const botUrl = "https://t.me/MeuJogoCrypto2026_bot";
-                const shareText = encodeURIComponent(`Junta-te a mim no Crypto Tap Game e ajuda-nos a subir no ranking! 🚀`);
+                const shareText = encodeURIComponent(`Junta-te a mim no Crypto Tap Game e luta pelo Top 10 diário! 🚀`);
                 
                 if (tg && tg.openTelegramLink) {
                     tg.openTelegramLink(`https://t.me/share/url?url=${botUrl}&text=${shareText}`);
@@ -479,27 +501,24 @@
             }
         }
 
-        // Loja de Upgrades Reais
         function renderShopModal(container) {
             let multitapCost = 50 * tapPower;
             let energyCost = 80;
 
             container.innerHTML = `
-                <h3 style="margin-top: 0; color: #d8b4fe;">⚡ Loja de Melhorias</h3>
-                <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 15px;">Gasta os teus pontos para evoluir o teu poder!</p>
+                <h3 style="margin-top: 0; color: #d8b4fe;">⚡ Loja Global</h3>
+                <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 15px;">Os upgrades ficam guardados na nuvem!</p>
                 
                 <div class="shop-item">
                     <div style="text-align: left; font-size: 12px;">
-                        <strong>Multitap (+1 por toque)</strong><br>
-                        <span style="color: #a78bfa;">Atual: Nível ${tapPower}</span>
+                        <strong>Multitap (+1)</strong><br><span style="color: #a78bfa;">Nível ${tapPower}</span>
                     </div>
                     <button class="shop-btn" onclick="buyUpgrade('multitap', ${multitapCost})">${multitapCost} WP</button>
                 </div>
 
                 <div class="shop-item">
                     <div style="text-align: left; font-size: 12px;">
-                        <strong>Max Energia (+50 limite)</strong><br>
-                        <span style="color: #a78bfa;">Atual: ${maxEnergy}</span>
+                        <strong>Max Energia (+50)</strong><br><span style="color: #a78bfa;">Atual: ${maxEnergy}</span>
                     </div>
                     <button class="shop-btn" onclick="buyUpgrade('energy', ${energyCost})">${energyCost} WP</button>
                 </div>
@@ -512,50 +531,48 @@
             if (points >= cost) {
                 points -= cost;
                 scoreDisplay.innerText = points;
-
-                if (type === 'multitap') {
-                    tapPower += 1;
-                } else if (type === 'energy') {
+                if (type === 'multitap') tapPower += 1;
+                else if (type === 'energy') {
                     maxEnergy += 50;
                     energy = maxEnergy;
                     energyBar.style.width = '100%';
                     energyText.innerText = `${energy} / ${maxEnergy}`;
                 }
+                syncScoreToCloud();
                 renderShopModal(document.getElementById('modal-body-content'));
             } else {
-                alert("Não tens pontos suficientes!");
+                alert("Pontos insuficientes!");
             }
         }
 
-        // Painel de Missões Diárias
-        function renderMissionsModal(container) {
-            let progressText = missionClaimed ? "Concluída (100%)" : `${Math.min(missionClicksCount, 50)} / 50 Cliques`;
-            let btnState = missionClaimed ? 'disabled style="background: gray;"' : '';
-            let btnText = missionClaimed ? 'Resgatado' : (missionClicksCount >= 50 ? 'Resgatar +100 WP' : 'Em progresso');
+        // Puxar o Top 10 real direto da Nuvem
+        async function renderRankingModal(container) {
+            container.innerHTML = `<h3 style="color: #d8b4fe;">🏆 Top 10 Global</h3><p style="font-size:12px; color:#9ca3af;">A carregar melhores jogadores...</p>`;
+            
+            const { data: topPlayers, error } = await supabaseClient
+                .from('players')
+                .select('username, score')
+                .order('score', { ascending: false })
+                .limit(10);
 
-            container.innerHTML = `
-                <h3 style="margin-top: 0; color: #d8b4fe;">🏆 Missões Diárias</h3>
-                <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 15px;">Cumpre objetivos e ganha bónus diretos!</p>
-                
-                <div class="shop-item">
-                    <div style="text-align: left; font-size: 12px;">
-                        <strong>Dá 50 cliques na Waifu</strong><br>
-                        <span style="color: #a78bfa;">${progressText}</span>
-                    </div>
-                    <button class="shop-btn" ${btnState} onclick="claimMission()">${btnText}</button>
-                </div>
-
-                <button class="modal-close" onclick="closeModal()">Fechar</button>
-            `;
-        }
-
-        function claimMission() {
-            if (!missionClaimed && missionClicksCount >= 50) {
-                missionClaimed = true;
-                points += 100;
-                scoreDisplay.innerText = points;
-                renderMissionsModal(document.getElementById('modal-body-content'));
+            let html = `<h3 style="margin-top: 0; color: #d8b4fe;">🏆 Top 10 Global</h3><p style="font-size: 11px; color: #cbd5e1; margin-bottom: 12px;">Os prémios diários saem daqui!</p>`;
+            
+            if (topPlayers && topPlayers.length > 0) {
+                topPlayers.forEach((player, index) => {
+                    let medal = index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : `#${index+1}`));
+                    html += `
+                        <div class="ranking-row">
+                            <span>${medal} <strong>${player.username || 'Anónimo'}</strong></span>
+                            <span style="color: #a78bfa; font-weight: bold;">${player.score} WP</span>
+                        </div>
+                    `;
+                });
+            } else {
+                html += `<p style="font-size: 12px;">Ainda sem registos na nuvem.</p>`;
             }
+
+            html += `<button class="modal-close" onclick="closeModal()">Fechar</button>`;
+            container.innerHTML = html;
         }
 
         function closeModal() {
