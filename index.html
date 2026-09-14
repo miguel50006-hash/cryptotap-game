@@ -30,6 +30,9 @@
         body {
             margin: 0;
             padding: 0;
+            /* Respeita o entalhe/câmara do telemóvel em cima e as barras de gestos em baixo */
+            padding-top: env(safe-area-inset-top, 10px);
+            padding-bottom: env(safe-area-inset-bottom, 10px);
             background-color: var(--bg-color);
             color: var(--text-main);
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -42,9 +45,9 @@
         }
 
         .header {
-            margin: 6px 12px 0 12px;
+            margin: 4px 12px 0 12px;
             background: var(--card-bg);
-            padding: 8px 12px;
+            padding: 6px 10px;
             border-radius: 14px;
             text-align: center;
             border: 1px solid var(--border-color);
@@ -54,7 +57,7 @@
 
         .ad-bonus-btn {
             position: absolute;
-            right: 10px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
             background: linear-gradient(135deg, #fbbf24, #d97706);
@@ -62,30 +65,30 @@
             border-radius: 10px;
             color: #120f29;
             font-weight: 800;
-            font-size: 11px;
-            padding: 6px 10px;
+            font-size: 10px;
+            padding: 5px 8px;
             cursor: pointer;
-            box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 3px;
             transition: transform 0.1s ease;
         }
         .ad-bonus-btn:active { transform: translateY(-50%) scale(0.95); }
 
         .user-greeting {
-            font-size: 11px;
+            font-size: 10px;
             color: #d8b4fe;
             font-weight: 500;
         }
 
         .score-box {
-            font-size: 34px;
+            font-size: 28px;
             font-weight: 800;
             color: var(--text-main);
             line-height: 1.1;
             margin: 2px 0;
-            text-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
             transition: transform 0.1s ease;
         }
 
@@ -95,7 +98,7 @@
         }
 
         .score-label {
-            font-size: 9px;
+            font-size: 8px;
             color: var(--text-muted);
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -104,15 +107,16 @@
         .dialogue-box {
             background: rgba(147, 51, 234, 0.15);
             border: 1px solid rgba(168, 85, 247, 0.3);
-            padding: 5px 12px;
-            border-radius: 16px;
-            font-size: 12px;
+            padding: 3px 10px;
+            border-radius: 14px;
+            font-size: 11px;
             color: #f3e8ff;
-            margin: 4px auto 0 auto;
+            margin: 2px auto 0 auto;
             display: inline-block;
-            max-width: 90%;
+            max-width: 85%;
         }
 
+        /* Área da Waifu ajustada para não colar aos elementos e manter o neon */
         .waifu-container {
             position: relative;
             cursor: pointer;
@@ -121,27 +125,27 @@
             align-items: center;
             flex-grow: 1;
             width: 100%;
-            padding: 5px 0;
+            padding: 2px 0;
         }
 
         .waifu-container img {
-            max-height: 40vh;
+            max-height: 34vh;
             width: auto;
-            max-width: 85vw;
+            max-width: 80vw;
             border-radius: 12px;
-            filter: drop-shadow(0 0 20px rgba(168, 85, 247, 0.75)) drop-shadow(0 0 40px rgba(236, 72, 153, 0.45));
+            filter: drop-shadow(0 0 18px rgba(168, 85, 247, 0.75)) drop-shadow(0 0 35px rgba(236, 72, 153, 0.4));
             transition: transform 0.08s ease, filter 0.1s ease;
             object-fit: contain;
         }
 
         .waifu-container img:active {
             transform: scale(0.96);
-            filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.9));
+            filter: drop-shadow(0 0 22px rgba(251, 191, 36, 0.9));
         }
 
         .floating-star {
             position: absolute;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: bold;
             animation: starFloat 0.9s ease-out forwards;
             pointer-events: none;
@@ -152,30 +156,30 @@
         @keyframes starFloat {
             0% { transform: translateY(0) scale(0.5) rotate(0deg); opacity: 1; }
             50% { opacity: 1; }
-            100% { transform: translateY(-100px) scale(1.3) rotate(360deg); opacity: 0; }
+            100% { transform: translateY(-90px) scale(1.3) rotate(360deg); opacity: 0; }
         }
 
         .footer-section {
-            width: calc(100% - 24px);
-            margin: 0 12px 6px 12px;
+            width: calc(100% - 20px);
+            margin: 0 10px 4px 10px;
             background: var(--card-bg);
-            padding: 8px 12px;
-            border-radius: 14px;
+            padding: 6px 10px;
+            border-radius: 12px;
             border: 1px solid var(--border-color);
         }
 
         .energy-info {
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
-            margin-bottom: 4px;
+            font-size: 10px;
+            margin-bottom: 3px;
             color: var(--text-muted);
             font-weight: 600;
         }
 
         .energy-bar-container {
             background: rgba(255, 255, 255, 0.08);
-            height: 5px;
+            height: 4px;
             border-radius: 3px;
             overflow: hidden;
         }
@@ -193,7 +197,7 @@
             justify-content: space-around;
             background: #0d0a1f;
             width: 100%;
-            padding: 8px 0 calc(8px + env(safe-area-inset-bottom, 0px)) 0;
+            padding: 6px 0;
             border-top: 1px solid var(--border-color);
         }
 
@@ -235,33 +239,33 @@
         .modal-content {
             background: #1a153b;
             border: 1px solid rgba(168, 85, 247, 0.4);
-            width: 88%; max-width: 330px; padding: 20px;
-            border-radius: 20px; text-align: center;
+            width: 88%; max-width: 330px; padding: 16px;
+            border-radius: 18px; text-align: center;
             box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            max-height: 85vh; overflow-y: auto;
+            max-height: 80vh; overflow-y: auto;
         }
 
         .shop-item {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px; border-radius: 12px; margin-bottom: 10px;
+            padding: 8px; border-radius: 10px; margin-bottom: 8px;
             display: flex; justify-content: space-between; align-items: center;
         }
 
         .shop-btn {
             background: var(--accent-purple); color: white; border: none;
-            padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
+            padding: 5px 10px; border-radius: 7px; font-size: 11px; font-weight: 600; cursor: pointer;
         }
 
         .ranking-row {
-            display: flex; justify-content: space-between; padding: 8px 10px;
+            display: flex; justify-content: space-between; padding: 7px 8px;
             background: rgba(255, 255, 255, 0.03); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            font-size: 12px; border-radius: 6px; margin-bottom: 4px;
+            font-size: 11px; border-radius: 6px; margin-bottom: 3px;
         }
 
         .modal-close {
-            margin-top: 15px; background: rgba(255, 255, 255, 0.1); color: white;
-            border: none; padding: 8px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%;
+            margin-top: 12px; background: rgba(255, 255, 255, 0.1); color: white;
+            border: none; padding: 7px 16px; border-radius: 9px; font-weight: 600; cursor: pointer; width: 100%;
         }
     </style>
 </head>
@@ -502,13 +506,13 @@
             let multitapCost = 50 * tapPower;
             let energyCost = 80;
             container.innerHTML = `
-                <h3 style="margin-top: 0; color: #d8b4fe;">⚡ Loja Global</h3>
+                <h3 style="margin-top: 0; color: #d8b4fe; font-size: 16px;">⚡ Loja Global</h3>
                 <div class="shop-item">
-                    <div style="text-align: left; font-size: 12px;"><strong>Multitap (+1)</strong><br><span style="color: #a78bfa;">Nível ${tapPower}</span></div>
+                    <div style="text-align: left; font-size: 11px;"><strong>Multitap (+1)</strong><br><span style="color: #a78bfa;">Nível ${tapPower}</span></div>
                     <button class="shop-btn" onclick="buyUpgrade('multitap', ${multitapCost})">${multitapCost} WP</button>
                 </div>
                 <div class="shop-item">
-                    <div style="text-align: left; font-size: 12px;"><strong>Max Energia (+50)</strong><br><span style="color: #a78bfa;">Atual: ${maxEnergy}</span></div>
+                    <div style="text-align: left; font-size: 11px;"><strong>Max Energia (+50)</strong><br><span style="color: #a78bfa;">Atual: ${maxEnergy}</span></div>
                     <button class="shop-btn" onclick="buyUpgrade('energy', ${energyCost})">${energyCost} WP</button>
                 </div>
                 <button class="modal-close" onclick="closeModal()">Fechar</button>
@@ -534,7 +538,7 @@
         }
 
         async function renderRankingModal(container) {
-            container.innerHTML = `<h3 style="color: #d8b4fe;">🏆 Top 10 Global</h3><p style="font-size:12px; color:#9ca3af;">A carregar...</p>`;
+            container.innerHTML = `<h3 style="color: #d8b4fe; font-size: 16px;">🏆 Top 10 Global</h3><p style="font-size:11px; color:#9ca3af;">A carregar...</p>`;
             const { data: topPlayers } = await supabaseClient
                 .from('players')
                 .select('username, score')
@@ -542,8 +546,8 @@
                 .limit(10);
 
             let html = `
-                <h3 style="margin-top: 0; color: #d8b4fe;">🏆 Top 10 Global</h3>
-                <p style="font-size: 11px; color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); padding: 8px; border-radius: 8px; margin-bottom: 12px;">
+                <h3 style="margin-top: 0; color: #d8b4fe; font-size: 16px;">🏆 Top 10 Global</h3>
+                <p style="font-size: 10px; color: #fbbf24; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.2); padding: 6px; border-radius: 6px; margin-bottom: 10px;">
                     💡 Quem ficar no <strong>Top 10 semanal</strong> ganha dinheiro, e se correr bem passa a ser diário! 🚀
                 </p>
             `;
@@ -554,7 +558,7 @@
                     html += `<div class="ranking-row"><span>${medal} <strong>${p.username || 'Anónimo'}</strong></span><span style="color: #a78bfa; font-weight: bold;">${p.score} WP</span></div>`;
                 });
             } else {
-                html += `<p style="font-size: 12px;">Ainda sem registos.</p>`;
+                html += `<p style="font-size: 11px;">Ainda sem registos.</p>`;
             }
             html += `<button class="modal-close" onclick="closeModal()">Fechar</button>`;
             container.innerHTML = html;
